@@ -1,14 +1,14 @@
-package com.ruchij.photo.album.dao.album;
+package com.ruchij.photo.album.daos.photo;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
+import com.ruchij.photo.album.daos.album.Album;
+import com.ruchij.photo.album.daos.resource.ResourceFile;
+import jakarta.persistence.*;
 
 import java.time.Instant;
 import java.util.Optional;
 
-@Entity
-public final class Album {
+@Entity(name = "photo")
+public class Photo {
   @Id
   @Column(name = "id", nullable = false, unique = true, updatable = false)
   private String id;
@@ -16,24 +16,22 @@ public final class Album {
   @Column(name = "created_at", nullable = false, updatable = false)
   private Instant createdAt;
 
+  @ManyToOne(optional = false)
+  @JoinColumn(name = "album_id", nullable = false)
+  private Album album;
+
   @Column(name = "user_id", nullable = false, updatable = false)
   private String userId;
 
-  @Column(name = "name", nullable = false)
-  private String name;
+  @Column(name = "title")
+  private String title;
 
   @Column(name = "description")
   private String description;
 
-  public Album(String id, Instant createdAt, String userId, String name, Optional<String> maybeDescription) {
-	setId(id);
-	setCreatedAt(createdAt);
-	setUserId(userId);
-	setName(name);
-	setMaybeDescription(maybeDescription);
-  }
-
-  public Album() {}
+  @OneToOne(optional = false)
+  @JoinColumn(name = "resource_id", nullable = false)
+  private ResourceFile resourceFile;
 
   public String getId() {
 	return id;
@@ -51,6 +49,14 @@ public final class Album {
 	this.createdAt = createdAt;
   }
 
+  public Album getAlbum() {
+	return album;
+  }
+
+  public void setAlbum(Album album) {
+	this.album = album;
+  }
+
   public String getUserId() {
 	return userId;
   }
@@ -59,12 +65,12 @@ public final class Album {
 	this.userId = userId;
   }
 
-  public String getName() {
-	return name;
+  public Optional<String> getMaybeTitle() {
+	return Optional.ofNullable(title);
   }
 
-  public void setName(String name) {
-	this.name = name;
+  public void setMaybeTitle(Optional<String> maybeTitle) {
+	this.title = maybeTitle.orElse(null);
   }
 
   public Optional<String> getMaybeDescription() {
@@ -73,5 +79,13 @@ public final class Album {
 
   public void setMaybeDescription(Optional<String> maybeDescription) {
 	this.description = maybeDescription.orElse(null);
+  }
+
+  public ResourceFile getResourceFile() {
+	return resourceFile;
+  }
+
+  public void setResourceFile(ResourceFile resourceFile) {
+	this.resourceFile = resourceFile;
   }
 }

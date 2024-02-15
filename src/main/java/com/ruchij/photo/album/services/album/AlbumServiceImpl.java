@@ -1,8 +1,8 @@
 package com.ruchij.photo.album.services.album;
 
 import com.ruchij.photo.album.components.id.IdGenerator;
-import com.ruchij.photo.album.dao.album.Album;
-import com.ruchij.photo.album.dao.album.AlbumRepository;
+import com.ruchij.photo.album.daos.album.Album;
+import com.ruchij.photo.album.daos.album.AlbumRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.Clock;

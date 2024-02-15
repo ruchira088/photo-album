@@ -1,6 +1,6 @@
 package com.ruchij.photo.album.services.album;
 
-import com.ruchij.photo.album.dao.album.Album;
+import com.ruchij.photo.album.daos.album.Album;
 
 import java.util.Optional;
 

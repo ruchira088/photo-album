@@ -1,6 +1,6 @@
-package com.ruchij.photo.album.web.controller.responses;
+package com.ruchij.photo.album.web.controllers.responses;
 
-import com.ruchij.photo.album.dao.album.Album;
+import com.ruchij.photo.album.daos.album.Album;
 
 import java.util.Optional;
 

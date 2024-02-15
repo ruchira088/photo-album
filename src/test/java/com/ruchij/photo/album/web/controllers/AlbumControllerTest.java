@@ -1,8 +1,8 @@
-package com.ruchij.photo.album.web.controller;
+package com.ruchij.photo.album.web.controllers;
 
 import com.ruchij.photo.album.components.id.IdGenerator;
-import com.ruchij.photo.album.dao.album.Album;
-import com.ruchij.photo.album.dao.album.AlbumRepository;
+import com.ruchij.photo.album.daos.album.Album;
+import com.ruchij.photo.album.daos.album.AlbumRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -35,11 +35,15 @@ class AlbumControllerTest {
   private IdGenerator idGenerator;
 
   @Test
-  void shouldCreateAlbumInDatabase() throws Exception {
+  void shouldCreateAndRetrieveAlbumInDatabase() throws Exception {
 	Mockito.when(idGenerator.generateId(Mockito.eq(Album.class)))
 	  .thenReturn("mock-album-id");
 
-	MockHttpServletRequestBuilder requestBuilder =
+	String expectedJson = """
+   			{"name": "album-name","description": "album-description"}
+ 		""";
+
+	MockHttpServletRequestBuilder createAlbumRequestBuilder =
 	  MockMvcRequestBuilders
 		.post("/album")
 		.contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -48,13 +52,10 @@ class AlbumControllerTest {
 		  """
 		);
 
-	mockMvc.perform(requestBuilder)
+	mockMvc.perform(createAlbumRequestBuilder)
 	  .andExpect(status().isCreated())
 	  .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
-	  .andExpect(content().json("""
-			{"id":"mock-album-id","userId":"user-id","name":"album-name","description":"album-description"}
-		"""
-	  ));
+	  .andExpect(content().json(expectedJson));
 
 	Optional<Album> maybeSavedAlbum = albumRepository.findById("mock-album-id");
 	Assertions.assertTrue(maybeSavedAlbum.isPresent());
@@ -63,5 +64,13 @@ class AlbumControllerTest {
 	assertEquals("mock-album-id", savedAlbum.getId());
 	assertEquals("album-name", savedAlbum.getName());
 	assertEquals(Optional.of("album-description"), savedAlbum.getMaybeDescription());
+
+	MockHttpServletRequestBuilder getAlbumRequestBuilder =
+	  MockMvcRequestBuilders.get("/album/id/mock-album-id");
+
+	mockMvc.perform(getAlbumRequestBuilder)
+	  .andExpect(status().isOk())
+	  .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+	  .andExpect(content().json(expectedJson));
   }
 }

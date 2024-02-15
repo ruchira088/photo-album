@@ -1,4 +1,4 @@
-package com.ruchij.photo.album.web.controller.requests;
+package com.ruchij.photo.album.web.controllers.requests;
 
 import java.util.Optional;
 

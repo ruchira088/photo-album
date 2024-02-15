@@ -1,4 +1,4 @@
-package com.ruchij.photo.album.dao.album;
+package com.ruchij.photo.album.daos.album;
 
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
