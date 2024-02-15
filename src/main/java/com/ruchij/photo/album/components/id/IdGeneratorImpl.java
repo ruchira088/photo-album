@@ -2,11 +2,14 @@ package com.ruchij.photo.album.components.id;
 
 import org.springframework.stereotype.Component;
 
+import java.util.UUID;
+
 @Component
 public class IdGeneratorImpl implements IdGenerator {
+
   @Override
   public String generateId(Class<?> clazz) {
-	return clazz.getSimpleName();
+	return kebabCase(clazz.getSimpleName()) + "-" + UUID.randomUUID();
   }
 
   static String kebabCase(String input) {

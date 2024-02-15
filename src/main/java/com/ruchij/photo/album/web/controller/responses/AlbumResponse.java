@@ -1,6 +1,11 @@
 package com.ruchij.photo.album.web.controller.responses;
 
-import java.time.Instant;
+import com.ruchij.photo.album.dao.album.Album;
 
-public record AlbumResponse(String id, Instant createdAt, String userId, String name, String description) {
+import java.util.Optional;
+
+public record AlbumResponse(String id, String userId, String name, Optional<String> description) {
+  public static AlbumResponse from(Album album) {
+	return new AlbumResponse(album.getId(), album.getUserId(), album.getName(), album.getMaybeDescription());
+  }
 }

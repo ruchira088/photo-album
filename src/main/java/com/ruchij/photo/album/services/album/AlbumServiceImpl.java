@@ -1,8 +1,8 @@
 package com.ruchij.photo.album.services.album;
 
+import com.ruchij.photo.album.components.id.IdGenerator;
 import com.ruchij.photo.album.dao.album.Album;
 import com.ruchij.photo.album.dao.album.AlbumRepository;
-import com.ruchij.photo.album.components.id.IdGenerator;
 import org.springframework.stereotype.Service;
 
 import java.time.Clock;
@@ -22,12 +22,17 @@ public class AlbumServiceImpl implements AlbumService {
   }
 
   @Override
-  public Album create(String userId, String name, Optional<String> description) {
+  public Album create(String userId, String name, Optional<String> maybeDescription) {
 	String albumId = idGenerator.generateId(Album.class);
 	Instant createdAt = clock.instant();
 
-	Album album = new Album(albumId, createdAt, userId, name, description);
+	Album album = new Album(albumId, createdAt, userId, name, maybeDescription);
 
 	return albumRepository.save(album);
+  }
+
+  @Override
+  public Optional<Album> findById(String albumId) {
+	return albumRepository.findById(albumId);
   }
 }
