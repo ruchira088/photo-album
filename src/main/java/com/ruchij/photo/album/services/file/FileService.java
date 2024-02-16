@@ -6,5 +6,5 @@ import com.ruchij.photo.album.services.models.FileData;
 import java.io.IOException;
 
 public interface FileService {
-  ResourceFile insert(FileData fileData) throws IOException;
+	ResourceFile insert(FileData fileData) throws IOException;
 }

@@ -25,52 +25,52 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 class AlbumControllerTest {
 
-  @Autowired
-  private MockMvc mockMvc;
+	@Autowired
+	private MockMvc mockMvc;
 
-  @Autowired
-  private AlbumRepository albumRepository;
+	@Autowired
+	private AlbumRepository albumRepository;
 
-  @MockBean
-  private IdGenerator idGenerator;
+	@MockBean
+	private IdGenerator idGenerator;
 
-  @Test
-  void shouldCreateAndRetrieveAlbumInDatabase() throws Exception {
-	Mockito.when(idGenerator.generateId(Mockito.eq(Album.class)))
-	  .thenReturn("mock-album-id");
+	@Test
+	void shouldCreateAndRetrieveAlbumInDatabase() throws Exception {
+		Mockito.when(idGenerator.generateId(Mockito.eq(Album.class)))
+			.thenReturn("mock-album-id");
 
-	String expectedJson = """
-   			{"name": "album-name","description": "album-description"}
- 		""";
+		String expectedJson = """
+						{"name": "album-name","description": "album-description"}
+			""";
 
-	MockHttpServletRequestBuilder createAlbumRequestBuilder =
-	  MockMvcRequestBuilders
-		.post("/album")
-		.contentType(MediaType.APPLICATION_JSON_VALUE)
-		.content("""
-		  	{"name": "album-name","description": "album-description"}
-		  """
-		);
+		MockHttpServletRequestBuilder createAlbumRequestBuilder =
+			MockMvcRequestBuilders
+				.post("/album")
+				.contentType(MediaType.APPLICATION_JSON_VALUE)
+				.content("""
+						{"name": "album-name","description": "album-description"}
+					"""
+				);
 
-	mockMvc.perform(createAlbumRequestBuilder)
-	  .andExpect(status().isCreated())
-	  .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
-	  .andExpect(content().json(expectedJson));
+		mockMvc.perform(createAlbumRequestBuilder)
+			.andExpect(status().isCreated())
+			.andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+			.andExpect(content().json(expectedJson));
 
-	Optional<Album> maybeSavedAlbum = albumRepository.findById("mock-album-id");
-	Assertions.assertTrue(maybeSavedAlbum.isPresent());
+		Optional<Album> maybeSavedAlbum = albumRepository.findById("mock-album-id");
+		Assertions.assertTrue(maybeSavedAlbum.isPresent());
 
-	Album savedAlbum = maybeSavedAlbum.get();
-	assertEquals("mock-album-id", savedAlbum.getId());
-	assertEquals("album-name", savedAlbum.getName());
-	assertEquals(Optional.of("album-description"), savedAlbum.getMaybeDescription());
+		Album savedAlbum = maybeSavedAlbum.get();
+		assertEquals("mock-album-id", savedAlbum.getId());
+		assertEquals("album-name", savedAlbum.getName());
+		assertEquals(Optional.of("album-description"), savedAlbum.getMaybeDescription());
 
-	MockHttpServletRequestBuilder getAlbumRequestBuilder =
-	  MockMvcRequestBuilders.get("/album/id/mock-album-id");
+		MockHttpServletRequestBuilder getAlbumRequestBuilder =
+			MockMvcRequestBuilders.get("/album/id/mock-album-id");
 
-	mockMvc.perform(getAlbumRequestBuilder)
-	  .andExpect(status().isOk())
-	  .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
-	  .andExpect(content().json(expectedJson));
-  }
+		mockMvc.perform(getAlbumRequestBuilder)
+			.andExpect(status().isOk())
+			.andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+			.andExpect(content().json(expectedJson));
+	}
 }

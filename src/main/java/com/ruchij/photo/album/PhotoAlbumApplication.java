@@ -15,7 +15,7 @@ public class PhotoAlbumApplication {
 
 	@Bean
 	public Clock clock() {
-	  return Clock.systemDefaultZone();
+		return Clock.systemDefaultZone();
 	}
 
 }

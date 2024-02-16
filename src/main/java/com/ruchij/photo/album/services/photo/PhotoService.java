@@ -7,10 +7,10 @@ import java.io.IOException;
 import java.util.Optional;
 
 public interface PhotoService {
-  Photo insert(
-	String albumId,
-	FileData fileData,
-	Optional<String> maybeTitle,
-	Optional<String> maybeDescription
-  ) throws IOException;
+	Photo insert(
+		String albumId,
+		FileData fileData,
+		Optional<String> maybeTitle,
+		Optional<String> maybeDescription
+	) throws IOException;
 }

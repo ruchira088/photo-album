@@ -17,45 +17,45 @@ import java.util.Optional;
 
 @Service
 public class PhotoServiceImpl implements PhotoService {
-  private final FileService fileService;
-  private final AlbumService albumService;
-  private final PhotoRepository photoRepository;
-  private final IdGenerator idGenerator;
-  private final Clock clock;
+	private final FileService fileService;
+	private final AlbumService albumService;
+	private final PhotoRepository photoRepository;
+	private final IdGenerator idGenerator;
+	private final Clock clock;
 
-  public PhotoServiceImpl(
-	FileService fileService,
-	AlbumService albumService,
-	PhotoRepository photoRepository,
-	IdGenerator idGenerator,
-	Clock clock
-  ) {
-	this.fileService = fileService;
-	this.albumService = albumService;
-	this.photoRepository = photoRepository;
-	this.idGenerator = idGenerator;
-	this.clock = clock;
-  }
+	public PhotoServiceImpl(
+		FileService fileService,
+		AlbumService albumService,
+		PhotoRepository photoRepository,
+		IdGenerator idGenerator,
+		Clock clock
+	) {
+		this.fileService = fileService;
+		this.albumService = albumService;
+		this.photoRepository = photoRepository;
+		this.idGenerator = idGenerator;
+		this.clock = clock;
+	}
 
-  @Override
-  public Photo insert(String albumId, FileData fileData, Optional<String> maybeTitle, Optional<String> maybeDescription) throws IOException {
-	Album album = albumService.findById(albumId).orElseThrow();
+	@Override
+	public Photo insert(String albumId, FileData fileData, Optional<String> maybeTitle, Optional<String> maybeDescription) throws IOException {
+		Album album = albumService.findById(albumId).orElseThrow();
 
-	String photoId = idGenerator.generateId(Photo.class);
-	Instant instant = clock.instant();
+		String photoId = idGenerator.generateId(Photo.class);
+		Instant instant = clock.instant();
 
-	ResourceFile resourceFile = fileService.insert(fileData);
+		ResourceFile resourceFile = fileService.insert(fileData);
 
-	Photo photo = new Photo();
-	photo.setId(photoId);
-	photo.setCreatedAt(instant);
-	photo.setAlbum(album);
-	photo.setMaybeTitle(maybeTitle);
-	photo.setMaybeDescription(maybeDescription);
-	photo.setResourceFile(resourceFile);
+		Photo photo = new Photo();
+		photo.setId(photoId);
+		photo.setCreatedAt(instant);
+		photo.setAlbum(album);
+		photo.setMaybeTitle(maybeTitle);
+		photo.setMaybeDescription(maybeDescription);
+		photo.setResourceFile(resourceFile);
 
-	Photo savedPhoto = photoRepository.save(photo);
+		Photo savedPhoto = photoRepository.save(photo);
 
-	return savedPhoto;
-  }
+		return savedPhoto;
+	}
 }

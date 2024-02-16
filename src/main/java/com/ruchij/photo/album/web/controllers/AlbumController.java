@@ -19,41 +19,41 @@ import java.util.Optional;
 @Controller
 @RequestMapping("/album")
 public class AlbumController {
-  private final AlbumService albumService;
-  private final PhotoService photoService;
+	private final AlbumService albumService;
+	private final PhotoService photoService;
 
-  public AlbumController(AlbumService albumService, PhotoService photoService) {
-	this.albumService = albumService;
-	this.photoService = photoService;
-  }
+	public AlbumController(AlbumService albumService, PhotoService photoService) {
+		this.albumService = albumService;
+		this.photoService = photoService;
+	}
 
-  @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-  public ResponseEntity<AlbumResponse> create(@RequestBody CreateAlbumRequest createAlbumRequest) {
-	Album album = albumService.create("user-id", createAlbumRequest.name(), createAlbumRequest.description());
-	return ResponseEntity.status(HttpStatus.CREATED).body(AlbumResponse.from(album));
-  }
+	@PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<AlbumResponse> create(@RequestBody CreateAlbumRequest createAlbumRequest) {
+		Album album = albumService.create("user-id", createAlbumRequest.name(), createAlbumRequest.description());
+		return ResponseEntity.status(HttpStatus.CREATED).body(AlbumResponse.from(album));
+	}
 
-  @ResponseBody
-  @GetMapping(path = "id/{albumId}", produces = MediaType.APPLICATION_JSON_VALUE)
-  public AlbumResponse findById(@PathVariable String albumId) {
-	return albumService.findById(albumId).map(AlbumResponse::from).orElseThrow();
-  }
+	@ResponseBody
+	@GetMapping(path = "id/{albumId}", produces = MediaType.APPLICATION_JSON_VALUE)
+	public AlbumResponse findById(@PathVariable String albumId) {
+		return albumService.findById(albumId).map(AlbumResponse::from).orElseThrow();
+	}
 
-  @PostMapping(path = "id/{albumId}/photo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-  public void insertPhoto(
-	@PathVariable String albumId,
-	@RequestParam MultipartFile photo,
-	@RequestParam Optional<String> title,
-	@RequestParam Optional<String> description
-  ) throws IOException {
-	FileData fileData = new FileData(photo.getName(), photo.getContentType(), photo.getSize(), photo.getInputStream());
+	@PostMapping(path = "id/{albumId}/photo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	public void insertPhoto(
+		@PathVariable String albumId,
+		@RequestParam MultipartFile photo,
+		@RequestParam Optional<String> title,
+		@RequestParam Optional<String> description
+	) throws IOException {
+		FileData fileData = new FileData(photo.getName(), photo.getContentType(), photo.getSize(), photo.getInputStream());
 
-	photoService.insert(
-	  albumId,
-	  fileData,
-	  title,
-	  description
-	);
-  }
+		photoService.insert(
+			albumId,
+			fileData,
+			title,
+			description
+		);
+	}
 
 }
