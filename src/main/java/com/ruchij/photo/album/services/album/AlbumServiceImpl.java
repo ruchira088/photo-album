@@ -22,11 +22,11 @@ public class AlbumServiceImpl implements AlbumService {
 	}
 
 	@Override
-	public Album create(String userId, String name, Optional<String> maybeDescription) {
+	public Album create(String name, Optional<String> maybeDescription) {
 		String albumId = idGenerator.generateId(Album.class);
 		Instant createdAt = clock.instant();
 
-		Album album = new Album(albumId, createdAt, userId, name, maybeDescription);
+		Album album = new Album(albumId, createdAt, name, maybeDescription);
 
 		return albumRepository.save(album);
 	}

@@ -28,6 +28,11 @@ public class IdGeneratorImpl implements IdGenerator {
 
 	@Override
 	public String generateId(Class<?> clazz) {
-		return kebabCase(clazz.getSimpleName()) + "-" + UUID.randomUUID();
+		return kebabCase(clazz.getSimpleName()) + "-" + generateId();
+	}
+
+	@Override
+	public String generateId() {
+		return UUID.randomUUID().toString();
 	}
 }

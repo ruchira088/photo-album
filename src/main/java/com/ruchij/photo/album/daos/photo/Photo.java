@@ -20,9 +20,6 @@ public class Photo {
 	@JoinColumn(name = "album_id", nullable = false)
 	private Album album;
 
-	@Column(name = "user_id", nullable = false, updatable = false)
-	private String userId;
-
 	@Column(name = "title")
 	private String title;
 
@@ -55,14 +52,6 @@ public class Photo {
 
 	public void setAlbum(Album album) {
 		this.album = album;
-	}
-
-	public String getUserId() {
-		return userId;
-	}
-
-	public void setUserId(String userId) {
-		this.userId = userId;
 	}
 
 	public Optional<String> getMaybeTitle() {

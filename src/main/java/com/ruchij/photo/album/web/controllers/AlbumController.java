@@ -30,7 +30,7 @@ public class AlbumController {
 
 	@PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<AlbumResponse> create(@RequestBody CreateAlbumRequest createAlbumRequest) {
-		Album album = albumService.create("user-id", createAlbumRequest.name(), createAlbumRequest.description());
+		Album album = albumService.create(createAlbumRequest.name(), createAlbumRequest.description());
 		return ResponseEntity.status(HttpStatus.CREATED).body(AlbumResponse.from(album));
 	}
 
@@ -49,9 +49,7 @@ public class AlbumController {
 	) throws IOException {
 		FileData fileData = new FileData(photoFile.getOriginalFilename(), photoFile.getContentType(), photoFile.getSize(), photoFile.getInputStream());
 
-		Photo photo = photoService.insert(albumId, "my-user-id", fileData, title, description);
-
-		System.out.println(photo);
+		Photo photo = photoService.insert(albumId, fileData, title, description);
 	}
 
 }

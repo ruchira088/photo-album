@@ -3,14 +3,14 @@ package com.ruchij.photo.album.web.controllers;
 import com.ruchij.photo.album.components.id.IdGenerator;
 import com.ruchij.photo.album.daos.album.Album;
 import com.ruchij.photo.album.daos.album.AlbumRepository;
+import com.ruchij.photo.album.services.file.Storage;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.mockito.Spy;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
@@ -18,6 +18,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import java.io.InputStream;
 import java.time.Instant;
 import java.util.Optional;
 
@@ -37,6 +38,9 @@ class AlbumControllerTest {
 
 	@SpyBean
 	private IdGenerator idGenerator;
+
+	@Autowired
+	private Storage storage;
 
 	@Test
 	void shouldCreateAndRetrieveAlbumInDatabase() throws Exception {
@@ -80,11 +84,20 @@ class AlbumControllerTest {
 
 	@Test
 	void shouldSavePhoto() throws Exception {
-		Album album = new Album("my-album-id", Instant.now(), "user-id", "album-name", Optional.of("album-description"));
+		Album album = new Album("my-album-id", Instant.now(), "album-name", Optional.of("album-description"));
 		albumRepository.save(album);
 
+		Mockito.doReturn("id-1", "id-2", "id-3").when(idGenerator).generateId();
+
+		InputStream inputStream = getClass().getClassLoader().getResourceAsStream("maltese-dog.jpg");
+
 		MockMultipartFile multipartFile =
-			new MockMultipartFile("photo", "original-file-name", "image/jpg", "This is random data".getBytes());
+			new MockMultipartFile(
+				"photo",
+				"maltese-dog.jpg",
+				"image/jpg",
+				inputStream
+			);
 
 		MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders
 			.multipart("/album/id/my-album-id/photo")
@@ -93,7 +106,9 @@ class AlbumControllerTest {
 			.param("description", "photo-description");
 
 		mockMvc.perform(requestBuilder)
-//			.andExpect(status().isCreated())
-			.andExpect(content().string("{}"));
+			.andExpect(status().isOk());
+
+
+
 	}
 }

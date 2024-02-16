@@ -21,8 +21,8 @@ public class ResourceFile {
 	@Column(name = "content_type", nullable = false, updatable = false)
 	private String contentType;
 
-	@Column(name = "file_location", nullable = false, updatable = false, unique = true)
-	private String fileLocation;
+	@Column(name = "file_key", nullable = false, updatable = false, unique = true)
+	private String fileKey;
 
 	@Column(name = "file_size", nullable = false, updatable = false)
 	private Long fileSize;
@@ -59,12 +59,12 @@ public class ResourceFile {
 		this.contentType = contentType;
 	}
 
-	public String getFileLocation() {
-		return fileLocation;
+	public String getFileKey() {
+		return fileKey;
 	}
 
-	public void setFileLocation(String fileLocation) {
-		this.fileLocation = fileLocation;
+	public void setFileKey(String fileLocation) {
+		this.fileKey = fileLocation;
 	}
 
 	public Long getFileSize() {

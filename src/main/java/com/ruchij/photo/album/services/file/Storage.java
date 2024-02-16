@@ -5,7 +5,9 @@ import java.io.InputStream;
 
 public interface Storage {
 
-	String save(String key, InputStream inputStream) throws IOException;
+	void save(String key, InputStream inputStream) throws IOException;
 
 	InputStream get(String key) throws IOException;
+
+	boolean delete(String key) throws IOException;
 }

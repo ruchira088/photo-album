@@ -3,11 +3,12 @@ package com.ruchij.photo.album.services.file;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.UUID;
 
 @Service
 public class LocalFileStorage implements Storage {
@@ -18,17 +19,23 @@ public class LocalFileStorage implements Storage {
 	}
 
 	@Override
-	public String save(String key, InputStream inputStream) throws IOException {
-		Path path = basePath.resolve(key);
-		Files.copy(inputStream, path);
-
-		return path.toAbsolutePath().toString();
+	public void save(String key, InputStream inputStream) throws IOException {
+		Files.copy(inputStream, fullPath(key));
 	}
 
 	@Override
 	public InputStream get(String key) throws IOException {
-		Path path = basePath.resolve(key);
-
-		return new BufferedInputStream(new FileInputStream(path.toFile()));
+		return new BufferedInputStream(new FileInputStream(fullPath(key).toFile()));
 	}
+
+	@Override
+	public boolean delete(String key) throws IOException {
+		return Files.deleteIfExists(fullPath(key));
+	}
+
+	private Path fullPath(String key) {
+		return basePath.resolve(key);
+	}
+
+
 }

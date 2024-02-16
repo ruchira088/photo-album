@@ -29,14 +29,15 @@ public class FileServiceImpl implements FileService {
 		String resourceFileId = idGenerator.generateId(ResourceFile.class);
 		Instant instant = clock.instant();
 
-		String location = storage.save(fileData.name(), fileData.data());
+		String fileKey = idGenerator.generateId() + "-" + fileData.name();
+		storage.save(fileKey, fileData.data());
 
 		ResourceFile resourceFile = new ResourceFile();
 		resourceFile.setId(resourceFileId);
 		resourceFile.setName(fileData.name());
 		resourceFile.setCreatedAt(instant);
 		resourceFile.setContentType(fileData.contentType());
-		resourceFile.setFileLocation(location);
+		resourceFile.setFileKey(fileKey);
 		resourceFile.setFileSize(fileData.size());
 
 		ResourceFile savedResourceFile = resourceFileRepository.save(resourceFile);

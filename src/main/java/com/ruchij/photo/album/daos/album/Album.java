@@ -16,19 +16,15 @@ public final class Album {
 	@Column(name = "created_at", nullable = false, updatable = false)
 	private Instant createdAt;
 
-	@Column(name = "user_id", nullable = false, updatable = false)
-	private String userId;
-
 	@Column(name = "name", nullable = false)
 	private String name;
 
 	@Column(name = "description")
 	private String description;
 
-	public Album(String id, Instant createdAt, String userId, String name, Optional<String> maybeDescription) {
+	public Album(String id, Instant createdAt, String name, Optional<String> maybeDescription) {
 		setId(id);
 		setCreatedAt(createdAt);
-		setUserId(userId);
 		setName(name);
 		setMaybeDescription(maybeDescription);
 	}
@@ -50,14 +46,6 @@ public final class Album {
 
 	public void setCreatedAt(Instant createdAt) {
 		this.createdAt = createdAt;
-	}
-
-	public String getUserId() {
-		return userId;
-	}
-
-	public void setUserId(String userId) {
-		this.userId = userId;
 	}
 
 	public String getName() {
