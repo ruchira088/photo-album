@@ -1,9 +1,9 @@
-package com.ruchij.photo.album.services.file;
+package com.ruchij.photo.album.services.storage;
 
 import java.io.IOException;
 import java.io.InputStream;
 
-public interface Storage {
+public interface StorageBackend {
 
 	void save(String key, InputStream inputStream) throws IOException;
 

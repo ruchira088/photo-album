@@ -1,4 +1,4 @@
-package com.ruchij.photo.album.services.file;
+package com.ruchij.photo.album.services.storage;
 
 import com.ruchij.photo.album.components.id.IdGenerator;
 import com.ruchij.photo.album.daos.resource.ResourceFile;
@@ -11,15 +11,15 @@ import java.time.Clock;
 import java.time.Instant;
 
 @Service
-public class FileServiceImpl implements FileService {
+public class StorageImpl implements Storage {
 	private final ResourceFileRepository resourceFileRepository;
-	private final Storage storage;
+	private final StorageBackend storageBackend;
 	private final IdGenerator idGenerator;
 	private final Clock clock;
 
-	public FileServiceImpl(ResourceFileRepository resourceFileRepository, Storage storage, IdGenerator idGenerator, Clock clock) {
+	public StorageImpl(ResourceFileRepository resourceFileRepository, StorageBackend storageBackend, IdGenerator idGenerator, Clock clock) {
 		this.resourceFileRepository = resourceFileRepository;
-		this.storage = storage;
+		this.storageBackend = storageBackend;
 		this.idGenerator = idGenerator;
 		this.clock = clock;
 	}
@@ -30,7 +30,7 @@ public class FileServiceImpl implements FileService {
 		Instant instant = clock.instant();
 
 		String fileKey = idGenerator.generateId() + "-" + fileData.name();
-		storage.save(fileKey, fileData.data());
+		storageBackend.save(fileKey, fileData.data());
 
 		ResourceFile resourceFile = new ResourceFile();
 		resourceFile.setId(resourceFileId);
@@ -43,5 +43,10 @@ public class FileServiceImpl implements FileService {
 		ResourceFile savedResourceFile = resourceFileRepository.save(resourceFile);
 
 		return savedResourceFile;
+	}
+
+	@Override
+	public StorageBackend getStorageBackend() {
+		return storageBackend;
 	}
 }

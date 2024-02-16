@@ -1,4 +1,4 @@
-package com.ruchij.photo.album.web.controllers.responses;
+package com.ruchij.photo.album.web.responses;
 
 import com.ruchij.photo.album.daos.album.Album;
 

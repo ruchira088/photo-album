@@ -13,4 +13,8 @@ public interface PhotoService {
 		Optional<String> maybeTitle,
 		Optional<String> maybeDescription
 	) throws IOException;
+
+	Optional<Photo> findByPhotoId(String photoId);
+
+	FileData getFileDataByPhotoId(String photoId) throws IOException;
 }

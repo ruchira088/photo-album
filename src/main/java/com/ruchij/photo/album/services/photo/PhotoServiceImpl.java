@@ -2,36 +2,37 @@ package com.ruchij.photo.album.services.photo;
 
 import com.ruchij.photo.album.components.id.IdGenerator;
 import com.ruchij.photo.album.daos.album.Album;
+import com.ruchij.photo.album.daos.album.AlbumRepository;
 import com.ruchij.photo.album.daos.photo.Photo;
 import com.ruchij.photo.album.daos.photo.PhotoRepository;
 import com.ruchij.photo.album.daos.resource.ResourceFile;
-import com.ruchij.photo.album.services.album.AlbumService;
-import com.ruchij.photo.album.services.file.FileService;
 import com.ruchij.photo.album.services.models.FileData;
+import com.ruchij.photo.album.services.storage.Storage;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Optional;
 
 @Service
 public class PhotoServiceImpl implements PhotoService {
-	private final FileService fileService;
-	private final AlbumService albumService;
+	private final Storage storage;
+	private final AlbumRepository albumRepository;
 	private final PhotoRepository photoRepository;
 	private final IdGenerator idGenerator;
 	private final Clock clock;
 
 	public PhotoServiceImpl(
-		FileService fileService,
-		AlbumService albumService,
+		Storage storage,
+		AlbumRepository albumRepository,
 		PhotoRepository photoRepository,
 		IdGenerator idGenerator,
 		Clock clock
 	) {
-		this.fileService = fileService;
-		this.albumService = albumService;
+		this.storage = storage;
+		this.albumRepository = albumRepository;
 		this.photoRepository = photoRepository;
 		this.idGenerator = idGenerator;
 		this.clock = clock;
@@ -39,12 +40,12 @@ public class PhotoServiceImpl implements PhotoService {
 
 	@Override
 	public Photo insert(String albumId, FileData fileData, Optional<String> maybeTitle, Optional<String> maybeDescription) throws IOException {
-		Album album = albumService.findById(albumId).orElseThrow();
+		Album album = albumRepository.findById(albumId).orElseThrow();
 
 		String photoId = idGenerator.generateId(Photo.class);
 		Instant instant = clock.instant();
 
-		ResourceFile resourceFile = fileService.insert(fileData);
+		ResourceFile resourceFile = storage.insert(fileData);
 
 		Photo photo = new Photo();
 		photo.setId(photoId);
@@ -57,5 +58,21 @@ public class PhotoServiceImpl implements PhotoService {
 		Photo savedPhoto = photoRepository.save(photo);
 
 		return savedPhoto;
+	}
+
+	@Override
+	public Optional<Photo> findByPhotoId(String photoId) {
+		return photoRepository.findById(photoId);
+	}
+
+	@Override
+	public FileData getFileDataByPhotoId(String photoId) throws IOException {
+		Photo photo = photoRepository.findById(photoId).orElseThrow();
+		ResourceFile resourceFile = photo.getResourceFile();
+		InputStream inputStream = storage.getStorageBackend().get(resourceFile.getFileKey());
+		FileData fileData =
+			new FileData(resourceFile.getName(), resourceFile.getContentType(), resourceFile.getFileSize(), inputStream);
+
+		return fileData;
 	}
 }

@@ -5,8 +5,9 @@ import com.ruchij.photo.album.daos.photo.Photo;
 import com.ruchij.photo.album.services.album.AlbumService;
 import com.ruchij.photo.album.services.models.FileData;
 import com.ruchij.photo.album.services.photo.PhotoService;
-import com.ruchij.photo.album.web.controllers.requests.CreateAlbumRequest;
-import com.ruchij.photo.album.web.controllers.responses.AlbumResponse;
+import com.ruchij.photo.album.web.requests.CreateAlbumRequest;
+import com.ruchij.photo.album.web.responses.AlbumResponse;
+import com.ruchij.photo.album.web.responses.PhotoResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 
 @Controller
@@ -37,11 +39,11 @@ public class AlbumController {
 	@ResponseBody
 	@GetMapping(path = "id/{albumId}", produces = MediaType.APPLICATION_JSON_VALUE)
 	public AlbumResponse findById(@PathVariable String albumId) {
-		return albumService.findById(albumId).map(AlbumResponse::from).orElseThrow();
+		return albumService.findByAlbumId(albumId).map(AlbumResponse::from).orElseThrow();
 	}
 
 	@PostMapping(path = "id/{albumId}/photo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	public void insertPhoto(
+	public ResponseEntity<PhotoResponse> insertPhoto(
 		@PathVariable String albumId,
 		@RequestParam(name = "photo") MultipartFile photoFile,
 		@RequestParam Optional<String> title,
@@ -50,6 +52,22 @@ public class AlbumController {
 		FileData fileData = new FileData(photoFile.getOriginalFilename(), photoFile.getContentType(), photoFile.getSize(), photoFile.getInputStream());
 
 		Photo photo = photoService.insert(albumId, fileData, title, description);
+
+		return ResponseEntity.status(HttpStatus.CREATED).body(PhotoResponse.from(photo));
+	}
+
+	@ResponseBody
+	@GetMapping(value = "id/{albumId}/photo", produces = MediaType.APPLICATION_JSON_VALUE)
+	public List<PhotoResponse> getPhotos(
+		@PathVariable String albumId,
+		@RequestParam(value = "page-size", defaultValue = "40") Integer pageSize,
+		@RequestParam(value = "page-number", defaultValue = "0") Integer pageNumber
+	) {
+		List<PhotoResponse> photoResponses =
+			albumService.findPhotosByAlbumId(albumId, pageSize, pageNumber).stream()
+				.map(PhotoResponse::from).toList();
+
+		return photoResponses;
 	}
 
 }

@@ -1,4 +1,4 @@
-package com.ruchij.photo.album.services.file;
+package com.ruchij.photo.album.services.storage;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -11,10 +11,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 @Service
-public class LocalFileStorage implements Storage {
+public class LocalFileStorageBackend implements StorageBackend {
 	private final Path basePath;
 
-	public LocalFileStorage(@Value("${storage.local-storage.base-path}") Path basePath) {
+	public LocalFileStorageBackend(@Value("${storage-backend.local-storage.base-path}") Path basePath) {
 		this.basePath = basePath;
 	}
 

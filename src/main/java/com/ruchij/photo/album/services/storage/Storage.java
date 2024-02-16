@@ -1,10 +1,13 @@
-package com.ruchij.photo.album.services.file;
+package com.ruchij.photo.album.services.storage;
 
 import com.ruchij.photo.album.daos.resource.ResourceFile;
 import com.ruchij.photo.album.services.models.FileData;
 
 import java.io.IOException;
 
-public interface FileService {
+public interface Storage {
 	ResourceFile insert(FileData fileData) throws IOException;
+
+	StorageBackend getStorageBackend();
+
 }
