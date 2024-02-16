@@ -1,6 +1,7 @@
 package com.ruchij.photo.album.web.controllers;
 
 import com.ruchij.photo.album.daos.album.Album;
+import com.ruchij.photo.album.daos.photo.Photo;
 import com.ruchij.photo.album.services.album.AlbumService;
 import com.ruchij.photo.album.services.models.FileData;
 import com.ruchij.photo.album.services.photo.PhotoService;
@@ -42,18 +43,15 @@ public class AlbumController {
 	@PostMapping(path = "id/{albumId}/photo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public void insertPhoto(
 		@PathVariable String albumId,
-		@RequestParam MultipartFile photo,
+		@RequestParam(name = "photo") MultipartFile photoFile,
 		@RequestParam Optional<String> title,
 		@RequestParam Optional<String> description
 	) throws IOException {
-		FileData fileData = new FileData(photo.getName(), photo.getContentType(), photo.getSize(), photo.getInputStream());
+		FileData fileData = new FileData(photoFile.getOriginalFilename(), photoFile.getContentType(), photoFile.getSize(), photoFile.getInputStream());
 
-		photoService.insert(
-			albumId,
-			fileData,
-			title,
-			description
-		);
+		Photo photo = photoService.insert(albumId, "my-user-id", fileData, title, description);
+
+		System.out.println(photo);
 	}
 
 }

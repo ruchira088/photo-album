@@ -9,6 +9,7 @@ import java.util.Optional;
 public interface PhotoService {
 	Photo insert(
 		String albumId,
+		String userId,
 		FileData fileData,
 		Optional<String> maybeTitle,
 		Optional<String> maybeDescription

@@ -30,7 +30,7 @@ public class Photo {
 	private String description;
 
 	@OneToOne(optional = false)
-	@JoinColumn(name = "resource_id", nullable = false)
+	@JoinColumn(name = "resource_file_id", nullable = false)
 	private ResourceFile resourceFile;
 
 	public String getId() {

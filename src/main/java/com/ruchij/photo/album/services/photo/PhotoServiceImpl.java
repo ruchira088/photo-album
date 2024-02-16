@@ -38,7 +38,7 @@ public class PhotoServiceImpl implements PhotoService {
 	}
 
 	@Override
-	public Photo insert(String albumId, FileData fileData, Optional<String> maybeTitle, Optional<String> maybeDescription) throws IOException {
+	public Photo insert(String albumId, String userId, FileData fileData, Optional<String> maybeTitle, Optional<String> maybeDescription) throws IOException {
 		Album album = albumService.findById(albumId).orElseThrow();
 
 		String photoId = idGenerator.generateId(Photo.class);
@@ -50,6 +50,7 @@ public class PhotoServiceImpl implements PhotoService {
 		photo.setId(photoId);
 		photo.setCreatedAt(instant);
 		photo.setAlbum(album);
+		photo.setUserId(userId);
 		photo.setMaybeTitle(maybeTitle);
 		photo.setMaybeDescription(maybeDescription);
 		photo.setResourceFile(resourceFile);

@@ -18,7 +18,7 @@ public class ResourceFile {
 	@Column(name = "created_at", nullable = false, updatable = false)
 	private Instant createdAt;
 
-	@Column(name = "content-type", nullable = false, updatable = false)
+	@Column(name = "content_type", nullable = false, updatable = false)
 	private String contentType;
 
 	@Column(name = "file_location", nullable = false, updatable = false, unique = true)
