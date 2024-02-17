@@ -1,7 +1,7 @@
-package com.ruchij.photo.album.services.health;
+package com.ruchij.photo.album.services.monitoring;
 
 import com.ruchij.photo.album.services.models.ServiceInformation;
 
-public interface HealthService {
+public interface MonitoringService {
 	ServiceInformation getServiceInformation();
 }

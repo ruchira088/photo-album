@@ -19,7 +19,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-class HealthControllerTest {
+class ServiceControllerTest {
 	@Autowired
 	private MockMvc mockMvc;
 
@@ -30,7 +30,7 @@ class HealthControllerTest {
 	public void shouldReturnSystemInformation() throws Exception {
 		Mockito.when(clock.instant()).thenReturn(Instant.parse("2024-02-17T04:58:47.474071Z"));
 
-		MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/health/info");
+		MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/service/info");
 
 		mockMvc.perform(requestBuilder)
 			.andExpect(status().isOk())

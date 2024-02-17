@@ -26,21 +26,21 @@ spec:
           readinessProbe:
             httpGet:
               port: springboot-port
-              path: /health/info
+              path: /service/info
               httpHeaders:
                 - name: X-Correlation-ID
                   value: k8s-readiness-probe
           livenessProbe:
             httpGet:
               port: springboot-port
-              path: /health/info
+              path: /service/info
               httpHeaders:
                 - name: X-Correlation-ID
                   value: k8s-liveness-probe
           startupProbe:
             httpGet:
               port: springboot-port
-              path: /health/info
+              path: /service/info
               httpHeaders:
                 - name: X-Correlation-ID
                   value: k8s-startup-probe
