@@ -5,6 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
 import java.time.Clock;
+import java.util.Properties;
 
 @SpringBootApplication
 public class PhotoAlbumApplication {
@@ -16,6 +17,11 @@ public class PhotoAlbumApplication {
 	@Bean
 	public Clock clock() {
 		return Clock.systemDefaultZone();
+	}
+
+	@Bean
+	public Properties properties() {
+		return System.getProperties();
 	}
 
 }
