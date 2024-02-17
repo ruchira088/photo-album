@@ -19,14 +19,18 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
 
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-		HandlerMethod handlerMethod = (HandlerMethod) handler;
+		if (handler instanceof HandlerMethod) {
+			HandlerMethod handlerMethod = (HandlerMethod) handler;
 
-		boolean isPublicEndpoint = handlerMethod.hasMethodAnnotation(PublicEndpoint.class);
+			boolean isPublicEndpoint = handlerMethod.hasMethodAnnotation(PublicEndpoint.class);
 
-		if (isPublicEndpoint || isAuthenticated(request)) {
-			return true;
+			if (isPublicEndpoint || isAuthenticated(request)) {
+				return true;
+			} else {
+				throw new AuthenticationException();
+			}
 		} else {
-			throw new AuthenticationException();
+			return true;
 		}
 	}
 

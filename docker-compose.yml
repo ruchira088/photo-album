@@ -1,0 +1,32 @@
+version: "3.8"
+
+services:
+  photo-album:
+    image: ghcr.io/ruchira088/photo-album:main
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - 8080:8080
+    volumes:
+      - "./images:/opt/images"
+    environment:
+      DATABASE_URL: "jdbc:postgresql://postgres:5432/photo-album"
+      DATABASE_USER: "admin"
+      DATABASE_PASSWORD: "password"
+      LOCAL_STORAGE_BASE_PATH: "/opt/images"
+
+  postgres:
+    image: postgres
+    command: "postgres -c log_statement=all"
+    healthcheck:
+      test: "pg_isready -U admin -d photo-album"
+      start_period: 5s
+      interval: 5s
+      timeout: 3s
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_DB: "photo-album"
+      POSTGRES_USER: "admin"
+      POSTGRES_PASSWORD: "password"

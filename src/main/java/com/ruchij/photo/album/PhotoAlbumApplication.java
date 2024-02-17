@@ -3,6 +3,8 @@ package com.ruchij.photo.album;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
+import org.springframework.core.io.ClassPathResource;
 
 import java.time.Clock;
 import java.util.Properties;
@@ -15,12 +17,23 @@ public class PhotoAlbumApplication {
 	}
 
 	@Bean
-	public Clock clock() {
+	Clock clock() {
 		return Clock.systemDefaultZone();
 	}
 
 	@Bean
-	public Properties properties() {
+	PropertySourcesPlaceholderConfigurer placeholderConfigurer() {
+		PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer =
+			new PropertySourcesPlaceholderConfigurer();
+
+		propertySourcesPlaceholderConfigurer.setLocation(new ClassPathResource("git.properties"));
+
+		return propertySourcesPlaceholderConfigurer;
+	}
+
+
+	@Bean
+	Properties properties() {
 		return System.getProperties();
 	}
 
