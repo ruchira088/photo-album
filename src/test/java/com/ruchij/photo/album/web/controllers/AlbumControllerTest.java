@@ -12,9 +12,11 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
@@ -55,6 +57,9 @@ class AlbumControllerTest {
 	@Autowired
 	private StorageBackend storageBackend;
 
+	@Value("${application.authentication.secret}")
+	private String authenticationSecret;
+
 	@Test
 	void shouldCreateAndRetrieveAlbumInDatabase() throws Exception {
 		Mockito.doReturn("mock-album-id")
@@ -68,6 +73,7 @@ class AlbumControllerTest {
 			MockMvcRequestBuilders
 				.post("/album")
 				.contentType(MediaType.APPLICATION_JSON_VALUE)
+				.header(HttpHeaders.AUTHORIZATION,"Bearer %s".formatted(authenticationSecret))
 				.content("""
 						{"name": "album-name","description": "album-description"}
 					"""
@@ -87,7 +93,9 @@ class AlbumControllerTest {
 		assertEquals(Optional.of("album-description"), savedAlbum.getMaybeDescription());
 
 		MockHttpServletRequestBuilder getAlbumRequestBuilder =
-			MockMvcRequestBuilders.get("/album/id/mock-album-id");
+			MockMvcRequestBuilders
+				.get("/album/id/mock-album-id")
+				.header(HttpHeaders.AUTHORIZATION,"Bearer %s".formatted(authenticationSecret));
 
 		mockMvc.perform(getAlbumRequestBuilder)
 			.andExpect(status().isOk())
@@ -118,7 +126,8 @@ class AlbumControllerTest {
 				.multipart("/album/id/my-album-id/photo")
 				.file(multipartFile)
 				.param("title", "photo-title")
-				.param("description", "photo-description");
+				.param("description", "photo-description")
+				.header(HttpHeaders.AUTHORIZATION,"Bearer %s".formatted(authenticationSecret));
 
 			mockMvc.perform(requestBuilder)
 				.andExpect(status().isCreated())
@@ -165,7 +174,10 @@ class AlbumControllerTest {
 			photoRepository.save(photo);
 		}
 
-		MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/album/id/my-id/photo?page-size=3&page-number=1");
+		MockHttpServletRequestBuilder requestBuilder =
+			MockMvcRequestBuilders
+				.get("/album/id/my-id/photo?page-size=3&page-number=1")
+				.header(HttpHeaders.AUTHORIZATION,"Bearer %s".formatted(authenticationSecret));
 
 		mockMvc.perform(requestBuilder)
 			.andExpect(status().isOk())

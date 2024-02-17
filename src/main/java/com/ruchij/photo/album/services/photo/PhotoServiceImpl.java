@@ -6,12 +6,12 @@ import com.ruchij.photo.album.daos.album.AlbumRepository;
 import com.ruchij.photo.album.daos.photo.Photo;
 import com.ruchij.photo.album.daos.photo.PhotoRepository;
 import com.ruchij.photo.album.daos.resource.ResourceFile;
+import com.ruchij.photo.album.services.exceptions.ResourceNotFoundException;
 import com.ruchij.photo.album.services.models.FileData;
 import com.ruchij.photo.album.services.storage.Storage;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Optional;
@@ -40,7 +40,9 @@ public class PhotoServiceImpl implements PhotoService {
 
 	@Override
 	public Photo insert(String albumId, FileData fileData, Optional<String> maybeTitle, Optional<String> maybeDescription) throws IOException {
-		Album album = albumRepository.findById(albumId).orElseThrow();
+		Album album =
+			albumRepository.findById(albumId)
+				.orElseThrow(() -> new ResourceNotFoundException(albumId, Album.class));
 
 		String photoId = idGenerator.generateId(Photo.class);
 		Instant instant = clock.instant();
@@ -67,7 +69,10 @@ public class PhotoServiceImpl implements PhotoService {
 
 	@Override
 	public FileData getFileDataByPhotoId(String photoId) throws IOException {
-		Photo photo = photoRepository.findById(photoId).orElseThrow();
+		Photo photo =
+			photoRepository.findById(photoId)
+				.orElseThrow(() -> new ResourceNotFoundException(photoId, Photo.class));
+
 		FileData fileData = storage.getFileDataByResourceId(photo.getResourceFile().getId());
 
 		return fileData;
@@ -75,7 +80,10 @@ public class PhotoServiceImpl implements PhotoService {
 
 	@Override
 	public Photo deletePhotoById(String photoId) throws IOException {
-		Photo photo = photoRepository.findById(photoId).orElseThrow();
+		Photo photo =
+			photoRepository.findById(photoId)
+				.orElseThrow(() -> new ResourceNotFoundException(photoId, Photo.class));
+
 		photoRepository.deleteById(photoId);
 		storage.deleteByResourceFileId(photo.getResourceFile().getId());
 

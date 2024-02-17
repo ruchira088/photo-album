@@ -10,6 +10,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
@@ -38,6 +39,9 @@ class PhotoControllerTest {
 	@Autowired
 	private PhotoService photoService;
 
+	@Value("${application.authentication.secret}")
+	private String authenticationSecret;
+
 	private Album album;
 
 	private Photo photo;
@@ -57,7 +61,10 @@ class PhotoControllerTest {
 
 	@Test
 	public void shouldReturnPhotoById() throws Exception {
-		MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/photo/id/%s".formatted(photo.getId()));
+		MockHttpServletRequestBuilder requestBuilder =
+			MockMvcRequestBuilders
+				.get("/photo/id/%s".formatted(photo.getId()))
+				.header(HttpHeaders.AUTHORIZATION,"Bearer %s".formatted(authenticationSecret));
 
 		mockMvc.perform(requestBuilder)
 			.andExpect(status().isOk())
@@ -69,10 +76,43 @@ class PhotoControllerTest {
 	}
 
 	@Test
+	public void shouldReturnAuthorizationErrorWhenRetrievingPhotoWithoutAuthentication() throws Exception {
+		MockHttpServletRequestBuilder requestBuilder =
+			MockMvcRequestBuilders
+				.get("/photo/id/%s".formatted(photo.getId()));
+
+		mockMvc.perform(requestBuilder)
+			.andExpect(status().isUnauthorized())
+			.andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+			.andExpect(content().json("""
+    				{ "errors": ["Authentication error"] }
+				""")
+			);
+	}
+
+	@Test
+	public void shouldReturnNotFoundResponseForNonExistingPhotoId() throws Exception {
+		MockHttpServletRequestBuilder requestBuilder =
+			MockMvcRequestBuilders
+				.get("/photo/id/non-existing-photo-id")
+				.header(HttpHeaders.AUTHORIZATION,"Bearer %s".formatted(authenticationSecret));;
+
+		mockMvc.perform(requestBuilder)
+			.andExpect(status().isNotFound())
+			.andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+			.andExpect(content().json("""
+					{"errors":["Unable to find Photo with id=non-existing-photo-id"]}
+				"""));
+	}
+
+	@Test
 	public void shouldServePhotoImageFile() throws Exception {
 		byte[] bytes = imageData();
 
-		MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/photo/id/%s/image-file".formatted(photo.getId()));
+		MockHttpServletRequestBuilder requestBuilder =
+			MockMvcRequestBuilders
+				.get("/photo/id/%s/image-file".formatted(photo.getId()))
+				.header(HttpHeaders.AUTHORIZATION,"Bearer %s".formatted(authenticationSecret));
 
 		mockMvc.perform(requestBuilder)
 			.andExpect(status().isOk())

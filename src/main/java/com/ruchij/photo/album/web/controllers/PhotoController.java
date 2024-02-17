@@ -1,6 +1,7 @@
 package com.ruchij.photo.album.web.controllers;
 
 import com.ruchij.photo.album.daos.photo.Photo;
+import com.ruchij.photo.album.services.exceptions.ResourceNotFoundException;
 import com.ruchij.photo.album.services.models.FileData;
 import com.ruchij.photo.album.services.photo.PhotoService;
 import com.ruchij.photo.album.web.responses.PhotoResponse;
@@ -28,7 +29,9 @@ public class PhotoController {
 	@ResponseBody
 	@GetMapping(value = "id/{photoId}", produces = MediaType.APPLICATION_JSON_VALUE)
 	public PhotoResponse getPhotoById(@PathVariable String photoId) {
-		Photo photo = photoService.findByPhotoId(photoId).orElseThrow();
+		Photo photo =
+			photoService.findByPhotoId(photoId)
+				.orElseThrow(() -> new ResourceNotFoundException(photoId, Photo.class));
 
 		return PhotoResponse.from(photo);
 	}

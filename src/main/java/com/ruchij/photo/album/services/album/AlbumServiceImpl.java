@@ -5,6 +5,7 @@ import com.ruchij.photo.album.daos.album.Album;
 import com.ruchij.photo.album.daos.album.AlbumRepository;
 import com.ruchij.photo.album.daos.photo.Photo;
 import com.ruchij.photo.album.daos.photo.PhotoRepository;
+import com.ruchij.photo.album.services.exceptions.ResourceNotFoundException;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -44,7 +45,7 @@ public class AlbumServiceImpl implements AlbumService {
 
 	@Override
 	public List<Photo> findPhotosByAlbumId(String albumId, int pageSize, int pageNumber) {
-		albumRepository.findById(albumId).orElseThrow();
+		albumRepository.findById(albumId).orElseThrow(() -> new ResourceNotFoundException(albumId, Album.class));
 
 		return photoRepository.findPhotosByAlbumId(albumId, Pageable.ofSize(pageSize).withPage(pageNumber)).getContent();
 	}

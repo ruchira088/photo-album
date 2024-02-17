@@ -2,6 +2,7 @@ package com.ruchij.photo.album.web.controllers;
 
 import com.ruchij.photo.album.services.health.HealthService;
 import com.ruchij.photo.album.services.models.ServiceInformation;
+import com.ruchij.photo.album.web.interceptors.PublicEndpoint;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,6 +17,7 @@ public class HealthController {
 		this.healthService = healthService;
 	}
 
+	@PublicEndpoint
 	@GetMapping("/info")
 	public ServiceInformation info() {
 		return healthService.getServiceInformation();

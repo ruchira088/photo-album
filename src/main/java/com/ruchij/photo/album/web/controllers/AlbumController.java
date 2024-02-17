@@ -3,6 +3,7 @@ package com.ruchij.photo.album.web.controllers;
 import com.ruchij.photo.album.daos.album.Album;
 import com.ruchij.photo.album.daos.photo.Photo;
 import com.ruchij.photo.album.services.album.AlbumService;
+import com.ruchij.photo.album.services.exceptions.ResourceNotFoundException;
 import com.ruchij.photo.album.services.models.FileData;
 import com.ruchij.photo.album.services.photo.PhotoService;
 import com.ruchij.photo.album.web.requests.CreateAlbumRequest;
@@ -39,7 +40,8 @@ public class AlbumController {
 	@ResponseBody
 	@GetMapping(path = "id/{albumId}", produces = MediaType.APPLICATION_JSON_VALUE)
 	public AlbumResponse findById(@PathVariable String albumId) {
-		return albumService.findByAlbumId(albumId).map(AlbumResponse::from).orElseThrow();
+		return albumService.findByAlbumId(albumId).map(AlbumResponse::from)
+			.orElseThrow(() -> new ResourceNotFoundException(albumId, Album.class));
 	}
 
 	@PostMapping(path = "id/{albumId}/photo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)

@@ -3,6 +3,7 @@ package com.ruchij.photo.album.services.storage;
 import com.ruchij.photo.album.components.id.IdGenerator;
 import com.ruchij.photo.album.daos.resource.ResourceFile;
 import com.ruchij.photo.album.daos.resource.ResourceFileRepository;
+import com.ruchij.photo.album.services.exceptions.ResourceNotFoundException;
 import com.ruchij.photo.album.services.models.FileData;
 import org.springframework.stereotype.Service;
 
@@ -48,7 +49,10 @@ public class StorageImpl implements Storage {
 
 	@Override
 	public ResourceFile deleteByResourceFileId(String resourceFileId) throws IOException {
-		ResourceFile resourceFile = resourceFileRepository.findById(resourceFileId).orElseThrow();
+		ResourceFile resourceFile =
+			resourceFileRepository.findById(resourceFileId)
+				.orElseThrow(() -> new ResourceNotFoundException(resourceFileId, ResourceFile.class));
+
 		storageBackend.delete(resourceFile.getFileKey());
 		resourceFileRepository.deleteById(resourceFileId);
 
@@ -57,7 +61,10 @@ public class StorageImpl implements Storage {
 
 	@Override
 	public FileData getFileDataByResourceId(String resourceFileId) throws IOException {
-		ResourceFile resourceFile = resourceFileRepository.findById(resourceFileId).orElseThrow();
+		ResourceFile resourceFile =
+			resourceFileRepository.findById(resourceFileId)
+				.orElseThrow(() -> new ResourceNotFoundException(resourceFileId, ResourceFile.class));
+
 		InputStream inputStream = storageBackend.get(resourceFile.getFileKey());
 		FileData fileData =
 			new FileData(resourceFile.getName(), resourceFile.getContentType(), resourceFile.getFileSize(), inputStream);
