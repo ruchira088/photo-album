@@ -8,6 +8,8 @@ import java.io.IOException;
 public interface Storage {
 	ResourceFile insert(FileData fileData) throws IOException;
 
-	StorageBackend getStorageBackend();
+	ResourceFile deleteByResourceFileId(String resourceFileId) throws IOException;
+
+	FileData getFileDataByResourceId(String resourceFileId) throws IOException;
 
 }

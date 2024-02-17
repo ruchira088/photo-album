@@ -17,4 +17,6 @@ public interface PhotoService {
 	Optional<Photo> findByPhotoId(String photoId);
 
 	FileData getFileDataByPhotoId(String photoId) throws IOException;
+
+	Photo deletePhotoById(String photoId) throws IOException;
 }

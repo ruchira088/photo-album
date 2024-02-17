@@ -68,11 +68,17 @@ public class PhotoServiceImpl implements PhotoService {
 	@Override
 	public FileData getFileDataByPhotoId(String photoId) throws IOException {
 		Photo photo = photoRepository.findById(photoId).orElseThrow();
-		ResourceFile resourceFile = photo.getResourceFile();
-		InputStream inputStream = storage.getStorageBackend().get(resourceFile.getFileKey());
-		FileData fileData =
-			new FileData(resourceFile.getName(), resourceFile.getContentType(), resourceFile.getFileSize(), inputStream);
+		FileData fileData = storage.getFileDataByResourceId(photo.getResourceFile().getId());
 
 		return fileData;
+	}
+
+	@Override
+	public Photo deletePhotoById(String photoId) throws IOException {
+		Photo photo = photoRepository.findById(photoId).orElseThrow();
+		photoRepository.deleteById(photoId);
+		storage.deleteByResourceFileId(photo.getResourceFile().getId());
+
+		return photo;
 	}
 }

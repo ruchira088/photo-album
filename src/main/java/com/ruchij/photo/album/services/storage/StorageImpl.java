@@ -7,6 +7,7 @@ import com.ruchij.photo.album.services.models.FileData;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.time.Clock;
 import java.time.Instant;
 
@@ -46,7 +47,21 @@ public class StorageImpl implements Storage {
 	}
 
 	@Override
-	public StorageBackend getStorageBackend() {
-		return storageBackend;
+	public ResourceFile deleteByResourceFileId(String resourceFileId) throws IOException {
+		ResourceFile resourceFile = resourceFileRepository.findById(resourceFileId).orElseThrow();
+		storageBackend.delete(resourceFile.getFileKey());
+		resourceFileRepository.deleteById(resourceFileId);
+
+		return resourceFile;
+	}
+
+	@Override
+	public FileData getFileDataByResourceId(String resourceFileId) throws IOException {
+		ResourceFile resourceFile = resourceFileRepository.findById(resourceFileId).orElseThrow();
+		InputStream inputStream = storageBackend.get(resourceFile.getFileKey());
+		FileData fileData =
+			new FileData(resourceFile.getName(), resourceFile.getContentType(), resourceFile.getFileSize(), inputStream);
+
+		return fileData;
 	}
 }

@@ -3,6 +3,7 @@ package com.ruchij.photo.album.web.controllers;
 import com.ruchij.photo.album.daos.photo.Photo;
 import com.ruchij.photo.album.services.models.FileData;
 import com.ruchij.photo.album.services.photo.PhotoService;
+import com.ruchij.photo.album.web.responses.PhotoResponse;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -25,10 +26,10 @@ public class PhotoController {
 
 	@ResponseBody
 	@GetMapping(value = "id/{photoId}", produces = MediaType.APPLICATION_JSON_VALUE)
-	public Photo getPhotoById(@PathVariable String photoId) {
+	public PhotoResponse getPhotoById(@PathVariable String photoId) {
 		Photo photo = photoService.findByPhotoId(photoId).orElseThrow();
 
-		return photo;
+		return PhotoResponse.from(photo);
 	}
 
 	@GetMapping("id/{photoId}/image-file")
