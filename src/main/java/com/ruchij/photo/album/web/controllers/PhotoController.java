@@ -4,8 +4,10 @@ import com.ruchij.photo.album.daos.photo.Photo;
 import com.ruchij.photo.album.services.models.FileData;
 import com.ruchij.photo.album.services.photo.PhotoService;
 import com.ruchij.photo.album.web.responses.PhotoResponse;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.io.IOException;
-import java.io.InputStream;
 
 @Controller
 @RequestMapping("/photo")
@@ -33,13 +34,12 @@ public class PhotoController {
 	}
 
 	@GetMapping("id/{photoId}/image-file")
-	public ResponseEntity<InputStream> getImageFileByPhotoId(@PathVariable String photoId) throws IOException {
+	public void getImageFileByPhotoId(@PathVariable String photoId, HttpServletResponse httpServletResponse) throws IOException {
 		FileData fileData = photoService.getFileDataByPhotoId(photoId);
-		MediaType mediaType = MediaType.parseMediaType(fileData.contentType());
 
-		return ResponseEntity.ok()
-			.contentType(mediaType)
-			.contentLength(fileData.size())
-			.body(fileData.data());
+		httpServletResponse.setContentType(fileData.contentType());
+		httpServletResponse.setStatus(HttpStatus.OK.value());
+		httpServletResponse.addHeader(HttpHeaders.CONTENT_LENGTH, fileData.size().toString());
+		fileData.data().transferTo(httpServletResponse.getOutputStream());
 	}
 }

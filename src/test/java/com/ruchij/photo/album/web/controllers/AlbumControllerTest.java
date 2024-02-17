@@ -110,7 +110,7 @@ class AlbumControllerTest {
 				new MockMultipartFile(
 					"photo",
 					"maltese-dog.jpg",
-					"image/jpg",
+					MediaType.IMAGE_JPEG_VALUE,
 					new ByteArrayInputStream(data)
 				);
 
