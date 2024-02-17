@@ -1,0 +1,28 @@
+---
+- hosts: localhost
+  connection: local
+
+  tasks:
+    - name: Gather git information
+      import_tasks: tasks/git-info.yml
+
+    - name: Install dependencies
+      import_tasks: tasks/install-dependencies.yml
+
+    - name: Clean and build application
+      shell: cd ../ && ./mvnw clean && ./mvnw -Dmaven.test.skip=true install
+
+    - name: Login to GitHub container registry
+      command: docker login ghcr.io -u USERNAME -p {{ access_token }}
+      vars:
+        access_token: "{{ lookup('aws_ssm', '/github/packages/read-write-token', region='ap-southeast-2') }}"
+
+    - name: Publish Docker image
+      shell: |
+        docker buildx build \
+          --push \
+          --platform linux/arm64,linux/amd64 \
+          -f docker/Dockerfile \
+          -t ghcr.io/ruchira088/photo-album:{{ git_branch }} \
+          -t ghcr.io/ruchira088/photo-album:{{ git_branch }}-{{ git_commit }} \
+          ../

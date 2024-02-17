@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: photo-album-deployment
+  namespace: {{ namespace }}
+spec:
+  selector:
+    matchLabels:
+      app: photo-album
+      branch: {{ git_branch }}
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: photo-album
+        branch: {{ git_branch }}
+    spec:
+      containers:
+        - name: photo-album-container
+          image: ghcr.io/ruchira088/photo-album:{{ git_branch }}-{{ git_commit }}
+          envFrom:
+            - configMapRef:
+                name: photo-album-data-config-map
+            - secretRef:
+                name: photo-album-secrets
+          readinessProbe:
+            httpGet:
+              port: springboot-port
+              path: /health/info
+              httpHeaders:
+                - name: X-Correlation-ID
+                  value: k8s-readiness-probe
+          livenessProbe:
+            httpGet:
+              port: springboot-port
+              path: /health/info
+              httpHeaders:
+                - name: X-Correlation-ID
+                  value: k8s-liveness-probe
+          startupProbe:
+            httpGet:
+              port: springboot-port
+              path: /health/info
+              httpHeaders:
+                - name: X-Correlation-ID
+                  value: k8s-startup-probe
+          ports:
+            - containerPort: 8080
+              name: springboot-port
+          volumeMounts:
+            - mountPath: /opt/data
+              name: file-config-map
+            - mountPath: {{ pod_images_mount_path }}
+              name: local-storage
+      volumes:
+        - name: file-config-map
+          configMap:
+            name: photo-album-file-config-map
+        - name: local-storage
+          hostPath:
+            path: {{ host_images_path }}
+            type: Directory
+      imagePullSecrets:
+        - name: docker-registry-credentials

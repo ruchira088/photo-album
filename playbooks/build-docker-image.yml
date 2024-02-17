@@ -1,0 +1,18 @@
+---
+- hosts: localhost
+  connection: local
+
+  tasks:
+    - name: Gather git information
+      import_tasks: tasks/git-info.yml
+
+    - name: Clean and build application
+      shell: cd ../ && ./mvnw clean && ./mvnw -Dmaven.test.skip=true install
+
+    - name: Build Docker image
+      shell: |
+        docker build \
+          -f docker/Dockerfile \
+          -t ghcr.io/ruchira088/photo-album:{{ git_branch }} \
+          -t ghcr.io/ruchira088/photo-album:{{ git_branch }}-{{ git_commit }} \
+          ../
