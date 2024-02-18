@@ -36,7 +36,7 @@ class ServiceControllerTest {
 			.andExpect(status().isOk())
 			.andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
 			.andExpect(content().json("""
-    				{ "serviceName": "photo-album", "currentTimestamp": "2024-02-17T04:58:47.474071Z" }
+								{ "serviceName": "photo-album", "currentTimestamp": "2024-02-17T04:58:47.474071Z" }
 				"""));
 	}
 }

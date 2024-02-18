@@ -64,13 +64,13 @@ class PhotoControllerTest {
 		MockHttpServletRequestBuilder requestBuilder =
 			MockMvcRequestBuilders
 				.get("/photo/id/%s".formatted(photo.getId()))
-				.header(HttpHeaders.AUTHORIZATION,"Bearer %s".formatted(authenticationSecret));
+				.header(HttpHeaders.AUTHORIZATION, "Bearer %s".formatted(authenticationSecret));
 
 		mockMvc.perform(requestBuilder)
 			.andExpect(status().isOk())
 			.andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
 			.andExpect(content().json("""
-    				{"id":"%s","albumId":"%s","title":"photo-1"}
+								{"id":"%s","albumId":"%s","title":"photo-1"}
 				""".formatted(photo.getId(), album.getId()))
 			);
 	}
@@ -85,7 +85,7 @@ class PhotoControllerTest {
 			.andExpect(status().isUnauthorized())
 			.andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
 			.andExpect(content().json("""
-    				{ "errors": ["Authentication error"] }
+								{ "errors": ["Authentication error"] }
 				""")
 			);
 	}
@@ -95,7 +95,8 @@ class PhotoControllerTest {
 		MockHttpServletRequestBuilder requestBuilder =
 			MockMvcRequestBuilders
 				.get("/photo/id/non-existing-photo-id")
-				.header(HttpHeaders.AUTHORIZATION,"Bearer %s".formatted(authenticationSecret));;
+				.header(HttpHeaders.AUTHORIZATION, "Bearer %s".formatted(authenticationSecret));
+		;
 
 		mockMvc.perform(requestBuilder)
 			.andExpect(status().isNotFound())
@@ -112,7 +113,7 @@ class PhotoControllerTest {
 		MockHttpServletRequestBuilder requestBuilder =
 			MockMvcRequestBuilders
 				.get("/photo/id/%s/image-file".formatted(photo.getId()))
-				.header(HttpHeaders.AUTHORIZATION,"Bearer %s".formatted(authenticationSecret));
+				.header(HttpHeaders.AUTHORIZATION, "Bearer %s".formatted(authenticationSecret));
 
 		mockMvc.perform(requestBuilder)
 			.andExpect(status().isOk())

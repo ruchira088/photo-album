@@ -22,7 +22,6 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -73,7 +72,7 @@ class AlbumControllerTest {
 			MockMvcRequestBuilders
 				.post("/album")
 				.contentType(MediaType.APPLICATION_JSON_VALUE)
-				.header(HttpHeaders.AUTHORIZATION,"Bearer %s".formatted(authenticationSecret))
+				.header(HttpHeaders.AUTHORIZATION, "Bearer %s".formatted(authenticationSecret))
 				.content("""
 						{"name": "album-name","description": "album-description"}
 					"""
@@ -95,7 +94,7 @@ class AlbumControllerTest {
 		MockHttpServletRequestBuilder getAlbumRequestBuilder =
 			MockMvcRequestBuilders
 				.get("/album/id/mock-album-id")
-				.header(HttpHeaders.AUTHORIZATION,"Bearer %s".formatted(authenticationSecret));
+				.header(HttpHeaders.AUTHORIZATION, "Bearer %s".formatted(authenticationSecret));
 
 		mockMvc.perform(getAlbumRequestBuilder)
 			.andExpect(status().isOk())
@@ -127,7 +126,7 @@ class AlbumControllerTest {
 				.file(multipartFile)
 				.param("title", "photo-title")
 				.param("description", "photo-description")
-				.header(HttpHeaders.AUTHORIZATION,"Bearer %s".formatted(authenticationSecret));
+				.header(HttpHeaders.AUTHORIZATION, "Bearer %s".formatted(authenticationSecret));
 
 			mockMvc.perform(requestBuilder)
 				.andExpect(status().isCreated())
@@ -177,14 +176,14 @@ class AlbumControllerTest {
 		MockHttpServletRequestBuilder requestBuilder =
 			MockMvcRequestBuilders
 				.get("/album/id/my-id/photo?page-size=3&page-number=1")
-				.header(HttpHeaders.AUTHORIZATION,"Bearer %s".formatted(authenticationSecret));
+				.header(HttpHeaders.AUTHORIZATION, "Bearer %s".formatted(authenticationSecret));
 
 		mockMvc.perform(requestBuilder)
 			.andExpect(status().isOk())
 			.andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
 			.andExpect(content().json("""
-    				[
-    					{"id":"photo-4","albumId":"my-id","title":null,"description":null},
+								[
+									{"id":"photo-4","albumId":"my-id","title":null,"description":null},
 						{"id":"photo-5","albumId":"my-id","title":null,"description":null},
 						{"id":"photo-6","albumId":"my-id","title":null,"description":null}
 					]

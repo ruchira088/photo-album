@@ -1,6 +1,5 @@
 package com.ruchij.photo.album.services.models;
 
-import java.util.List;
 import java.util.stream.Stream;
 
 public record HealthCheck(Status database, Status storage) {
