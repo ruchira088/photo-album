@@ -38,13 +38,13 @@ public class AlbumController {
 	}
 
 	@ResponseBody
-	@GetMapping(path = "id/{albumId}", produces = MediaType.APPLICATION_JSON_VALUE)
+	@GetMapping(path = "/id/{albumId}", produces = MediaType.APPLICATION_JSON_VALUE)
 	public AlbumResponse findById(@PathVariable String albumId) {
 		return albumService.findByAlbumId(albumId).map(AlbumResponse::from)
 			.orElseThrow(() -> new ResourceNotFoundException(albumId, Album.class));
 	}
 
-	@PostMapping(path = "id/{albumId}/photo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	@PostMapping(path = "/id/{albumId}/photo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<PhotoResponse> insertPhoto(
 		@PathVariable String albumId,
 		@RequestParam(name = "photo") MultipartFile photoFile,
@@ -59,7 +59,7 @@ public class AlbumController {
 	}
 
 	@ResponseBody
-	@GetMapping(value = "id/{albumId}/photo", produces = MediaType.APPLICATION_JSON_VALUE)
+	@GetMapping(value = "/id/{albumId}/photo", produces = MediaType.APPLICATION_JSON_VALUE)
 	public List<PhotoResponse> getPhotos(
 		@PathVariable String albumId,
 		@RequestParam(value = "page-size", defaultValue = "40") Integer pageSize,

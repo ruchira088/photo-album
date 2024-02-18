@@ -27,7 +27,7 @@ public class PhotoController {
 	}
 
 	@ResponseBody
-	@GetMapping(value = "id/{photoId}", produces = MediaType.APPLICATION_JSON_VALUE)
+	@GetMapping(value = "/id/{photoId}", produces = MediaType.APPLICATION_JSON_VALUE)
 	public PhotoResponse getPhotoById(@PathVariable String photoId) {
 		Photo photo =
 			photoService.findByPhotoId(photoId)
@@ -36,7 +36,7 @@ public class PhotoController {
 		return PhotoResponse.from(photo);
 	}
 
-	@GetMapping("id/{photoId}/image-file")
+	@GetMapping("/id/{photoId}/image-file")
 	public void getImageFileByPhotoId(@PathVariable String photoId, HttpServletResponse httpServletResponse) throws IOException {
 		FileData fileData = photoService.getFileDataByPhotoId(photoId);
 
