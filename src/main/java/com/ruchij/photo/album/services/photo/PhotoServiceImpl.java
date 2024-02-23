@@ -39,7 +39,7 @@ public class PhotoServiceImpl implements PhotoService {
 	}
 
 	@Override
-	public Photo insert(String albumId, FileData fileData, Optional<String> maybeTitle, Optional<String> maybeDescription) throws IOException {
+	public Photo insert(String albumId, FileData fileData, Optional<String> title, Optional<String> description) throws IOException {
 		Album album =
 			albumRepository.findById(albumId)
 				.orElseThrow(() -> new ResourceNotFoundException(albumId, Album.class));
@@ -53,8 +53,8 @@ public class PhotoServiceImpl implements PhotoService {
 		photo.setId(photoId);
 		photo.setCreatedAt(instant);
 		photo.setAlbum(album);
-		photo.setMaybeTitle(maybeTitle);
-		photo.setMaybeDescription(maybeDescription);
+		photo.setTitle(title);
+		photo.setDescription(description);
 		photo.setResourceFile(resourceFile);
 
 		Photo savedPhoto = photoRepository.save(photo);

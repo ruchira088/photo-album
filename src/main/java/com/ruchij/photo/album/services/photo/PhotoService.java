@@ -10,8 +10,8 @@ public interface PhotoService {
 	Photo insert(
 		String albumId,
 		FileData fileData,
-		Optional<String> maybeTitle,
-		Optional<String> maybeDescription
+		Optional<String> title,
+		Optional<String> description
 	) throws IOException;
 
 	Optional<Photo> findByPhotoId(String photoId);

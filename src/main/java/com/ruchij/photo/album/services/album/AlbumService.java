@@ -2,12 +2,13 @@ package com.ruchij.photo.album.services.album;
 
 import com.ruchij.photo.album.daos.album.Album;
 import com.ruchij.photo.album.daos.photo.Photo;
+import com.ruchij.photo.album.daos.user.User;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface AlbumService {
-	Album create(String name, Optional<String> description);
+	Album create(String name, Optional<String> description, boolean isPublic, Optional<String> password, User user);
 
 	Optional<Album> findByAlbumId(String albumId);
 

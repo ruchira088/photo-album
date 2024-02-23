@@ -1,8 +1,7 @@
 package com.ruchij.photo.album.daos.album;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
+import com.ruchij.photo.album.daos.user.User;
+import jakarta.persistence.*;
 
 import java.time.Instant;
 import java.util.Optional;
@@ -22,15 +21,15 @@ public final class Album {
 	@Column(name = "description")
 	private String description;
 
-	public Album(String id, Instant createdAt, String name, Optional<String> maybeDescription) {
-		setId(id);
-		setCreatedAt(createdAt);
-		setName(name);
-		setMaybeDescription(maybeDescription);
-	}
+	@ManyToOne(optional = false)
+	@JoinColumn(name = "user_id", nullable = false)
+	private User user;
 
-	public Album() {
-	}
+	@Column(name = "is_public", nullable = false)
+	private Boolean isPublic;
+
+	@OneToOne(cascade = CascadeType.ALL, mappedBy = "album")
+	private AlbumPassword albumPassword;
 
 	public String getId() {
 		return id;
@@ -56,11 +55,35 @@ public final class Album {
 		this.name = name;
 	}
 
-	public Optional<String> getMaybeDescription() {
+	public Optional<String> getDescription() {
 		return Optional.ofNullable(description);
 	}
 
-	public void setMaybeDescription(Optional<String> maybeDescription) {
-		this.description = maybeDescription.orElse(null);
+	public void setDescription(Optional<String> description) {
+		this.description = description.orElse(null);
+	}
+
+	public User getUser() {
+		return user;
+	}
+
+	public void setUser(User user) {
+		this.user = user;
+	}
+
+	public Boolean getPublic() {
+		return isPublic;
+	}
+
+	public void setPublic(Boolean aPublic) {
+		isPublic = aPublic;
+	}
+
+	public AlbumPassword getAlbumPassword() {
+		return albumPassword;
+	}
+
+	public void setAlbumPassword(AlbumPassword albumPassword) {
+		this.albumPassword = albumPassword;
 	}
 }

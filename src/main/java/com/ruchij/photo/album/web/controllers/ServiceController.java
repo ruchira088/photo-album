@@ -3,7 +3,6 @@ package com.ruchij.photo.album.web.controllers;
 import com.ruchij.photo.album.services.models.HealthCheck;
 import com.ruchij.photo.album.services.models.ServiceInformation;
 import com.ruchij.photo.album.services.monitoring.MonitoringService;
-import com.ruchij.photo.album.web.interceptors.PublicEndpoint;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -21,14 +20,12 @@ public class ServiceController {
 		this.monitoringService = monitoringService;
 	}
 
-	@PublicEndpoint
 	@ResponseBody
 	@GetMapping("/info")
 	public ServiceInformation info() {
 		return monitoringService.getServiceInformation();
 	}
 
-	@PublicEndpoint
 	@GetMapping("/health-check")
 	public ResponseEntity<HealthCheck> healthCheck() {
 		HealthCheck healthCheck = monitoringService.performHealthCheck();

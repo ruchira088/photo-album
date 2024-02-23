@@ -54,20 +54,20 @@ public class Photo {
 		this.album = album;
 	}
 
-	public Optional<String> getMaybeTitle() {
+	public Optional<String> getTitle() {
 		return Optional.ofNullable(title);
 	}
 
-	public void setMaybeTitle(Optional<String> maybeTitle) {
-		this.title = maybeTitle.orElse(null);
+	public void setTitle(Optional<String> title) {
+		this.title = title.orElse(null);
 	}
 
-	public Optional<String> getMaybeDescription() {
+	public Optional<String> getDescription() {
 		return Optional.ofNullable(description);
 	}
 
-	public void setMaybeDescription(Optional<String> maybeDescription) {
-		this.description = maybeDescription.orElse(null);
+	public void setDescription(Optional<String> description) {
+		this.description = description.orElse(null);
 	}
 
 	public ResourceFile getResourceFile() {
