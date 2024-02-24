@@ -34,8 +34,7 @@ public class WebConfig {
 				securityContext -> securityContext.securityContextRepository(securityContextRepository)
 			)
 			.authorizeHttpRequests((authorize) -> authorize
-				.requestMatchers(HttpMethod.POST, "/user", "/auth/login").permitAll()
-				.requestMatchers("/service/**").permitAll()
+				.requestMatchers(HttpMethod.POST, "/album").authenticated()
 				.anyRequest().permitAll()
 			);
 
