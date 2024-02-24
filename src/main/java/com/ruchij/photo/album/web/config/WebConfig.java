@@ -3,9 +3,13 @@ package com.ruchij.photo.album.web.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.access.PermissionEvaluator;
+import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
+import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -20,6 +24,7 @@ import org.springframework.security.web.context.SecurityContextHolderFilter;
 import org.springframework.security.web.context.SecurityContextRepository;
 
 @Configuration
+@EnableMethodSecurity
 @EnableWebSecurity
 public class WebConfig {
 	@Bean
@@ -31,7 +36,7 @@ public class WebConfig {
 			.authorizeHttpRequests((authorize) -> authorize
 				.requestMatchers(HttpMethod.POST, "/user", "/auth/login").permitAll()
 				.requestMatchers("/service/**").permitAll()
-				.anyRequest().authenticated()
+				.anyRequest().permitAll()
 			);
 
 		return httpSecurity.build();
@@ -66,5 +71,12 @@ public class WebConfig {
 	@Bean
 	public LogoutHandler logoutHandler() {
 		return new SecurityContextLogoutHandler();
+	}
+
+	@Bean
+	public MethodSecurityExpressionHandler methodSecurityExpressionHandler(PermissionEvaluator permissionEvaluator) {
+		DefaultMethodSecurityExpressionHandler securityExpressionHandler = new DefaultMethodSecurityExpressionHandler();
+		securityExpressionHandler.setPermissionEvaluator(permissionEvaluator);
+		return securityExpressionHandler;
 	}
 }

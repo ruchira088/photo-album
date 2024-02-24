@@ -9,6 +9,7 @@ import com.ruchij.photo.album.daos.resource.ResourceFile;
 import com.ruchij.photo.album.services.exceptions.ResourceNotFoundException;
 import com.ruchij.photo.album.services.models.FileData;
 import com.ruchij.photo.album.services.storage.Storage;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -39,6 +40,7 @@ public class PhotoServiceImpl implements PhotoService {
 	}
 
 	@Override
+	@PreAuthorize("hasPermission(#albumId, 'ALBUM', 'WRITE')")
 	public Photo insert(String albumId, FileData fileData, Optional<String> title, Optional<String> description) throws IOException {
 		Album album =
 			albumRepository.findById(albumId)
@@ -63,11 +65,13 @@ public class PhotoServiceImpl implements PhotoService {
 	}
 
 	@Override
+	@PreAuthorize("hasPermission(#photoId, 'PHOTO', 'READ')")
 	public Optional<Photo> findByPhotoId(String photoId) {
 		return photoRepository.findById(photoId);
 	}
 
 	@Override
+	@PreAuthorize("hasPermission(#photoId, 'PHOTO', 'READ')")
 	public FileData getFileDataByPhotoId(String photoId) throws IOException {
 		Photo photo =
 			photoRepository.findById(photoId)
@@ -79,6 +83,7 @@ public class PhotoServiceImpl implements PhotoService {
 	}
 
 	@Override
+	@PreAuthorize("hasPermission(#photoId, 'PHOTO', 'WRITE')")
 	public Photo deletePhotoById(String photoId) throws IOException {
 		Photo photo =
 			photoRepository.findById(photoId)

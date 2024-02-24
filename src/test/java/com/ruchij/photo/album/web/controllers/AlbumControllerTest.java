@@ -22,6 +22,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -93,6 +95,10 @@ class AlbumControllerTest {
 			.andExpect(status().isCreated())
 			.andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
 			.andExpect(content().json(expectedJson));
+
+		UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken =
+			new UsernamePasswordAuthenticationToken(authenticationDetails.user(), null);
+		SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
 
 		Optional<Album> maybeSavedAlbum = albumService.findByAlbumId("mock-album-id");
 		Assertions.assertTrue(maybeSavedAlbum.isPresent());

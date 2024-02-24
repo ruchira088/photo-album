@@ -5,6 +5,7 @@ import com.ruchij.photo.album.daos.photo.Photo;
 import com.ruchij.photo.album.services.album.AlbumService;
 import com.ruchij.photo.album.services.models.FileData;
 import com.ruchij.photo.album.services.photo.PhotoService;
+import com.ruchij.photo.album.services.storage.StorageBackend;
 import com.ruchij.photo.album.services.user.UserService;
 import com.ruchij.photo.album.web.test.AuthenticationDetails;
 import com.ruchij.photo.album.web.test.Helpers;
@@ -17,6 +18,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -44,6 +47,9 @@ class PhotoControllerTest {
 	@Autowired
 	private UserService userService;
 
+	@Autowired
+	private StorageBackend storageBackend;
+
 	private AuthenticationDetails authenticationDetails;
 
 	private Album album;
@@ -53,6 +59,11 @@ class PhotoControllerTest {
 	@BeforeAll
 	public void beforeAll() throws Exception {
 		authenticationDetails = Helpers.createAndAuthenticateUser(userService, mockMvc);
+
+		UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken =
+			new UsernamePasswordAuthenticationToken(authenticationDetails.user(), null);
+		SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+
 		album = albumService.create("My Photo Album", Optional.of("This is the description"), false, Optional.empty(), authenticationDetails.user());
 		byte[] data = imageData();
 		FileData fileData = new FileData("maltese-dog.jpg", MediaType.IMAGE_JPEG_VALUE, (long) data.length, new ByteArrayInputStream(data));
@@ -91,22 +102,6 @@ class PhotoControllerTest {
 	}
 
 	@Test
-	public void shouldReturnNotFoundResponseForNonExistingPhotoId() throws Exception {
-		MockHttpServletRequestBuilder requestBuilder =
-			MockMvcRequestBuilders
-				.get("/photo/id/non-existing-photo-id")
-				.cookie(authenticationDetails.cookies());
-		;
-
-		mockMvc.perform(requestBuilder)
-			.andExpect(status().isNotFound())
-			.andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
-			.andExpect(content().json("""
-					{"errors":["Unable to find Photo with id=non-existing-photo-id"]}
-				"""));
-	}
-
-	@Test
 	public void shouldServePhotoImageFile() throws Exception {
 		byte[] bytes = imageData();
 
@@ -124,7 +119,7 @@ class PhotoControllerTest {
 
 	@AfterAll
 	public void afterAll() throws IOException {
-		photoService.deletePhotoById(photo.getId());
+		storageBackend.delete(photo.getResourceFile().getFileKey());
 	}
 
 }

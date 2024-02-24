@@ -61,7 +61,7 @@ public class AlbumController {
 	}
 
 	@GetMapping(path = "/id/{albumId}")
-	public AlbumResponse findById(@PathVariable String albumId, @AuthenticationPrincipal User user) {
+	public AlbumResponse findById(@PathVariable String albumId) {
 		return albumService.findByAlbumId(albumId).map(AlbumResponse::from)
 			.orElseThrow(() -> new ResourceNotFoundException(albumId, Album.class));
 	}

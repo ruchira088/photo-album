@@ -9,6 +9,7 @@ import com.ruchij.photo.album.daos.photo.PhotoRepository;
 import com.ruchij.photo.album.daos.user.User;
 import com.ruchij.photo.album.services.exceptions.ResourceNotFoundException;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -75,11 +76,13 @@ public class AlbumServiceImpl implements AlbumService {
 	}
 
 	@Override
+	@PreAuthorize("hasPermission(#albumId, 'ALBUM', 'READ')")
 	public Optional<Album> findByAlbumId(String albumId) {
 		return albumRepository.findById(albumId);
 	}
 
 	@Override
+	@PreAuthorize("hasPermission(#albumId, 'ALBUM', 'READ')")
 	public List<Photo> findPhotosByAlbumId(String albumId, int pageSize, int pageNumber) {
 		albumRepository.findById(albumId).orElseThrow(() -> new ResourceNotFoundException(albumId, Album.class));
 
