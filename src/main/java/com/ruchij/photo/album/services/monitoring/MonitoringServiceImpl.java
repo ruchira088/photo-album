@@ -1,6 +1,8 @@
 package com.ruchij.photo.album.services.monitoring;
 
 import com.ruchij.photo.album.components.id.IdGenerator;
+import com.ruchij.photo.album.daos.flyway.FlywaySchema;
+import com.ruchij.photo.album.daos.flyway.FlywaySchemaRepository;
 import com.ruchij.photo.album.services.models.BuildInformation;
 import com.ruchij.photo.album.services.models.HealthCheck;
 import com.ruchij.photo.album.services.models.HealthCheck.Status;
@@ -8,6 +10,7 @@ import com.ruchij.photo.album.services.models.ServiceInformation;
 import com.ruchij.photo.album.services.storage.StorageBackend;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayInputStream;
@@ -16,8 +19,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.time.Clock;
 import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.*;
+import java.util.stream.StreamSupport;
 
 @Service
 public class MonitoringServiceImpl implements MonitoringService {
@@ -30,6 +36,7 @@ public class MonitoringServiceImpl implements MonitoringService {
 	private final String buildTimestamp;
 
 	private final EntityManager entityManager;
+	private final FlywaySchemaRepository flywaySchemaRepository;
 	private final ExecutorService executorService;
 	private final StorageBackend storageBackend;
 	private final IdGenerator idGenerator;
@@ -39,6 +46,7 @@ public class MonitoringServiceImpl implements MonitoringService {
 		BuildInformation buildInformation,
 		Properties properties,
 		EntityManager entityManager,
+		FlywaySchemaRepository flywaySchemaRepository,
 		StorageBackend storageBackend,
 		IdGenerator idGenerator,
 		Clock clock
@@ -49,6 +57,7 @@ public class MonitoringServiceImpl implements MonitoringService {
 		this.javaVersion = properties.getProperty("java.version", "unknown");
 		this.buildTimestamp = buildInformation.getBuildTimestamp();
 		this.entityManager = entityManager;
+		this.flywaySchemaRepository = flywaySchemaRepository;
 		this.storageBackend = storageBackend;
 		this.idGenerator = idGenerator;
 		this.clock = clock;
@@ -112,5 +121,14 @@ public class MonitoringServiceImpl implements MonitoringService {
 		storageBackend.delete(key);
 
 		return Arrays.equals(byteArray, word.getBytes()) ? Status.UP : Status.DOWN;
+	}
+
+	@Override
+	public List<FlywaySchema> flywaySchemas() {
+		Comparator<FlywaySchema> comparator = Comparator.comparing(FlywaySchema::getVersion);
+
+		return StreamSupport.stream(flywaySchemaRepository.findAll(Sort.by("version")).spliterator(), false)
+			.sorted(comparator)
+			.toList();
 	}
 }

@@ -1,5 +1,6 @@
 package com.ruchij.photo.album.web.controllers;
 
+import com.ruchij.photo.album.daos.flyway.FlywaySchema;
 import com.ruchij.photo.album.services.models.HealthCheck;
 import com.ruchij.photo.album.services.models.ServiceInformation;
 import com.ruchij.photo.album.services.monitoring.MonitoringService;
@@ -10,6 +11,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import java.util.Comparator;
+import java.util.List;
 
 @Controller
 @RequestMapping(value = "/service", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -32,5 +36,11 @@ public class ServiceController {
 		HttpStatus status = healthCheck.isHealthy() ? HttpStatus.OK : HttpStatus.SERVICE_UNAVAILABLE;
 
 		return ResponseEntity.status(status).body(healthCheck);
+	}
+
+	@ResponseBody
+	@GetMapping("/flyway")
+	public List<FlywaySchema> flywaySchemas() {
+		return monitoringService.flywaySchemas();
 	}
 }
