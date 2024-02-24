@@ -79,11 +79,11 @@ public final class Album {
 		isPublic = aPublic;
 	}
 
-	public AlbumPassword getAlbumPassword() {
-		return albumPassword;
+	public Optional<AlbumPassword> getAlbumPassword() {
+		return Optional.ofNullable(albumPassword);
 	}
 
-	public void setAlbumPassword(AlbumPassword albumPassword) {
-		this.albumPassword = albumPassword;
+	public void setAlbumPassword(Optional<AlbumPassword> albumPassword) {
+		this.albumPassword = albumPassword.orElse(null);
 	}
 }

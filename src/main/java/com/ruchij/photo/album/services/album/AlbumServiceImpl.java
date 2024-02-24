@@ -58,10 +58,20 @@ public class AlbumServiceImpl implements AlbumService {
 				albumPassword.setHashedPassword(passwordEncoder.encode(plainTextPassword));
 				albumPassword.setAlbum(album);
 
-				album.setAlbumPassword(albumPassword);
+				album.setAlbumPassword(Optional.of(albumPassword));
 			});
 
 		return albumRepository.save(album);
+	}
+
+	@Override
+	public List<Album> getAll(Optional<User> userOptional, int pageSize, int pageNumber) {
+		Pageable pageable = Pageable.ofSize(pageSize).withPage(pageNumber);
+		return userOptional
+			.map(user ->
+				albumRepository.getAlbumsByUserIdOrIsPublicIsTrueOrAlbumPasswordEmpty(user.getId(), pageable)
+			)
+			.orElseGet(() -> albumRepository.getAlbumsByIsPublicIsTrueOrAlbumPasswordEmpty(pageable));
 	}
 
 	@Override

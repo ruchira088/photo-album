@@ -9,6 +9,7 @@ import com.ruchij.photo.album.services.models.FileData;
 import com.ruchij.photo.album.services.photo.PhotoService;
 import com.ruchij.photo.album.web.controllers.requests.CreateAlbumRequest;
 import com.ruchij.photo.album.web.controllers.responses.AlbumResponse;
+import com.ruchij.photo.album.web.controllers.responses.AlbumSummaryResponse;
 import com.ruchij.photo.album.web.controllers.responses.PhotoResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -48,8 +49,19 @@ public class AlbumController {
 		return AlbumResponse.from(album);
 	}
 
+	@GetMapping
+	public List<AlbumSummaryResponse> getAll(
+		@AuthenticationPrincipal User user,
+		@RequestParam(value = "page-size", defaultValue = "40") Integer pageSize,
+		@RequestParam(value = "page-number", defaultValue = "0") Integer pageNumber
+	) {
+		return albumService.getAll(Optional.ofNullable(user), pageSize, pageNumber).stream()
+			.map(AlbumSummaryResponse::from)
+			.toList();
+	}
+
 	@GetMapping(path = "/id/{albumId}")
-	public AlbumResponse findById(@PathVariable String albumId) {
+	public AlbumResponse findById(@PathVariable String albumId, @AuthenticationPrincipal User user) {
 		return albumService.findByAlbumId(albumId).map(AlbumResponse::from)
 			.orElseThrow(() -> new ResourceNotFoundException(albumId, Album.class));
 	}

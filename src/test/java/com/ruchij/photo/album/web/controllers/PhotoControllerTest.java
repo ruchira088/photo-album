@@ -5,12 +5,14 @@ import com.ruchij.photo.album.daos.photo.Photo;
 import com.ruchij.photo.album.services.album.AlbumService;
 import com.ruchij.photo.album.services.models.FileData;
 import com.ruchij.photo.album.services.photo.PhotoService;
+import com.ruchij.photo.album.services.user.UserService;
+import com.ruchij.photo.album.web.test.AuthenticationDetails;
+import com.ruchij.photo.album.web.test.Helpers;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
@@ -39,92 +41,90 @@ class PhotoControllerTest {
 	@Autowired
 	private PhotoService photoService;
 
-	@Value("${application.authentication.secret}")
-	private String authenticationSecret;
+	@Autowired
+	private UserService userService;
+
+	private AuthenticationDetails authenticationDetails;
 
 	private Album album;
 
 	private Photo photo;
 
-//	@BeforeAll
-//	public void beforeAll() throws IOException {
-//		album = albumService.create("My Photo Album", Optional.of("This is the description"));
-//		byte[] data = imageData();
-//		FileData fileData = new FileData("maltese-dog.jpg", MediaType.IMAGE_JPEG_VALUE, (long) data.length, new ByteArrayInputStream(data));
-//
-//		photo = photoService.insert(album.getId(), fileData, Optional.of("photo-1"), Optional.empty());
-//	}
-//
-//	private byte[] imageData() throws IOException {
-//		return getClass().getClassLoader().getResourceAsStream("maltese-dog.jpg").readAllBytes();
-//	}
-//
-//	@Test
-//	public void shouldReturnPhotoById() throws Exception {
-//		MockHttpServletRequestBuilder requestBuilder =
-//			MockMvcRequestBuilders
-//				.get("/photo/id/%s".formatted(photo.getId()))
-//				.header(HttpHeaders.AUTHORIZATION, "Bearer %s".formatted(authenticationSecret));
-//
-//		mockMvc.perform(requestBuilder)
-//			.andExpect(status().isOk())
-//			.andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
-//			.andExpect(content().json("""
-//								{"id":"%s","albumId":"%s","title":"photo-1"}
-//				""".formatted(photo.getId(), album.getId()))
-//			);
-//	}
-//
-//	@Test
-//	public void shouldReturnAuthorizationErrorWhenRetrievingPhotoWithoutAuthentication() throws Exception {
-//		MockHttpServletRequestBuilder requestBuilder =
-//			MockMvcRequestBuilders
-//				.get("/photo/id/%s".formatted(photo.getId()));
-//
-//		mockMvc.perform(requestBuilder)
-//			.andExpect(status().isUnauthorized())
-//			.andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
-//			.andExpect(content().json("""
-//								{ "errors": ["Authentication error"] }
-//				""")
-//			);
-//	}
-//
-//	@Test
-//	public void shouldReturnNotFoundResponseForNonExistingPhotoId() throws Exception {
-//		MockHttpServletRequestBuilder requestBuilder =
-//			MockMvcRequestBuilders
-//				.get("/photo/id/non-existing-photo-id")
-//				.header(HttpHeaders.AUTHORIZATION, "Bearer %s".formatted(authenticationSecret));
-//		;
-//
-//		mockMvc.perform(requestBuilder)
-//			.andExpect(status().isNotFound())
-//			.andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
-//			.andExpect(content().json("""
-//					{"errors":["Unable to find Photo with id=non-existing-photo-id"]}
-//				"""));
-//	}
-//
-//	@Test
-//	public void shouldServePhotoImageFile() throws Exception {
-//		byte[] bytes = imageData();
-//
-//		MockHttpServletRequestBuilder requestBuilder =
-//			MockMvcRequestBuilders
-//				.get("/photo/id/%s/image-file".formatted(photo.getId()))
-//				.header(HttpHeaders.AUTHORIZATION, "Bearer %s".formatted(authenticationSecret));
-//
-//		mockMvc.perform(requestBuilder)
-//			.andExpect(status().isOk())
-//			.andExpect(content().contentType(MediaType.IMAGE_JPEG_VALUE))
-//			.andExpect(content().bytes(bytes))
-//			.andExpect(header().longValue(HttpHeaders.CONTENT_LENGTH, bytes.length));
-//	}
-//
-//	@AfterAll
-//	public void afterAll() throws IOException {
-//		photoService.deletePhotoById(photo.getId());
-//	}
+	@BeforeAll
+	public void beforeAll() throws Exception {
+		authenticationDetails = Helpers.createAndAuthenticateUser(userService, mockMvc);
+		album = albumService.create("My Photo Album", Optional.of("This is the description"), false, Optional.empty(), authenticationDetails.user());
+		byte[] data = imageData();
+		FileData fileData = new FileData("maltese-dog.jpg", MediaType.IMAGE_JPEG_VALUE, (long) data.length, new ByteArrayInputStream(data));
+
+		photo = photoService.insert(album.getId(), fileData, Optional.of("photo-1"), Optional.empty());
+	}
+
+	private byte[] imageData() throws IOException {
+		return getClass().getClassLoader().getResourceAsStream("maltese-dog.jpg").readAllBytes();
+	}
+
+	@Test
+	public void shouldReturnPhotoById() throws Exception {
+		MockHttpServletRequestBuilder requestBuilder =
+			MockMvcRequestBuilders
+				.get("/photo/id/%s".formatted(photo.getId()))
+				.cookie(authenticationDetails.cookies());
+
+		mockMvc.perform(requestBuilder)
+			.andExpect(status().isOk())
+			.andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+			.andExpect(content().json("""
+								{"id":"%s","albumId":"%s","title":"photo-1"}
+				""".formatted(photo.getId(), album.getId()))
+			);
+	}
+
+	@Test
+	public void shouldReturnAuthorizationErrorWhenRetrievingPhotoWithoutAuthentication() throws Exception {
+		MockHttpServletRequestBuilder requestBuilder =
+			MockMvcRequestBuilders
+				.get("/photo/id/%s".formatted(photo.getId()));
+
+		mockMvc.perform(requestBuilder)
+			.andExpect(status().isForbidden());
+	}
+
+	@Test
+	public void shouldReturnNotFoundResponseForNonExistingPhotoId() throws Exception {
+		MockHttpServletRequestBuilder requestBuilder =
+			MockMvcRequestBuilders
+				.get("/photo/id/non-existing-photo-id")
+				.cookie(authenticationDetails.cookies());
+		;
+
+		mockMvc.perform(requestBuilder)
+			.andExpect(status().isNotFound())
+			.andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+			.andExpect(content().json("""
+					{"errors":["Unable to find Photo with id=non-existing-photo-id"]}
+				"""));
+	}
+
+	@Test
+	public void shouldServePhotoImageFile() throws Exception {
+		byte[] bytes = imageData();
+
+		MockHttpServletRequestBuilder requestBuilder =
+			MockMvcRequestBuilders
+				.get("/photo/id/%s/image-file".formatted(photo.getId()))
+				.cookie(authenticationDetails.cookies());
+
+		mockMvc.perform(requestBuilder)
+			.andExpect(status().isOk())
+			.andExpect(content().contentType(MediaType.IMAGE_JPEG_VALUE))
+			.andExpect(content().bytes(bytes))
+			.andExpect(header().longValue(HttpHeaders.CONTENT_LENGTH, bytes.length));
+	}
+
+	@AfterAll
+	public void afterAll() throws IOException {
+		photoService.deletePhotoById(photo.getId());
+	}
 
 }
