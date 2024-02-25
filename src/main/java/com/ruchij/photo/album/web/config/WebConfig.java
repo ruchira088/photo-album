@@ -22,6 +22,8 @@ import org.springframework.security.web.authentication.logout.SecurityContextLog
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextHolderFilter;
 import org.springframework.security.web.context.SecurityContextRepository;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 @EnableMethodSecurity
@@ -78,4 +80,14 @@ public class WebConfig {
 		securityExpressionHandler.setPermissionEvaluator(permissionEvaluator);
 		return securityExpressionHandler;
 	}
+
+//	@Bean
+//	public WebMvcConfigurer webMvcConfigurer() {
+//		return new WebMvcConfigurer() {
+//			@Override
+//			public void addCorsMappings(CorsRegistry registry) {
+//				WebMvcConfigurer.super.addCorsMappings(registry);
+//			}
+//		};
+//	}
 }

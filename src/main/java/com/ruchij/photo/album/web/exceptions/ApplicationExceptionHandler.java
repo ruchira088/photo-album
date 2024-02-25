@@ -1,5 +1,7 @@
 package com.ruchij.photo.album.web.exceptions;
 
+import com.ruchij.photo.album.services.exceptions.AuthorizationException;
+import com.ruchij.photo.album.services.exceptions.ResourceConflictException;
 import com.ruchij.photo.album.services.exceptions.ResourceNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,18 +12,20 @@ import java.util.List;
 
 @ControllerAdvice
 public class ApplicationExceptionHandler {
+	@ExceptionHandler({ResourceNotFoundException.class, ResourceConflictException.class, AuthorizationException.class})
+	private ResponseEntity<ErrorMessage> customExceptionHandler(Exception exception) {
+		HttpStatus httpStatus;
 
-	@ExceptionHandler(AuthenticationException.class)
-	public ResponseEntity<ErrorMessage> authenticationException(AuthenticationException authenticationException) {
-		return ResponseEntity
-			.status(HttpStatus.UNAUTHORIZED)
-			.body(new ErrorMessage(List.of(authenticationException.getMessage())));
-	}
+		if (exception instanceof ResourceNotFoundException) {
+			httpStatus = HttpStatus.NOT_FOUND;
+		} else if (exception instanceof ResourceConflictException) {
+			httpStatus = HttpStatus.CONFLICT;
+		} else {
+			httpStatus = HttpStatus.FORBIDDEN;
+		}
 
-	@ExceptionHandler(ResourceNotFoundException.class)
-	private ResponseEntity<ErrorMessage> resourceNotFoundException(ResourceNotFoundException resourceNotFoundException) {
 		return ResponseEntity
-			.status(HttpStatus.NOT_FOUND)
-			.body(new ErrorMessage(List.of(resourceNotFoundException.getMessage())));
+			.status(httpStatus)
+			.body(new ErrorMessage(List.of(exception.getMessage())));
 	}
 }

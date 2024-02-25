@@ -92,13 +92,31 @@ class PhotoControllerTest {
 	}
 
 	@Test
+	public void shouldReturnNotFoundResponseForNonExistingPhotoId() throws Exception {
+		MockHttpServletRequestBuilder requestBuilder =
+			MockMvcRequestBuilders
+				.get("/photo/id/non-existing-photo-id");
+
+		mockMvc.perform(requestBuilder)
+			.andExpect(status().isNotFound())
+			.andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+			.andExpect(content().json("""
+					{"errors":["Unable to find Photo with id=non-existing-photo-id"]}
+				"""));
+	}
+
+	@Test
 	public void shouldReturnAuthorizationErrorWhenRetrievingPhotoWithoutAuthentication() throws Exception {
 		MockHttpServletRequestBuilder requestBuilder =
 			MockMvcRequestBuilders
 				.get("/photo/id/%s".formatted(photo.getId()));
 
 		mockMvc.perform(requestBuilder)
-			.andExpect(status().isForbidden());
+			.andExpect(status().isForbidden())
+			.andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+			.andExpect(content().json("""
+				{"errors":["%s is a private photo album"]}
+				""".formatted(photo.getAlbum().getId())));
 	}
 
 	@Test

@@ -2,8 +2,11 @@ package com.ruchij.photo.album.services.auth;
 
 import com.ruchij.photo.album.daos.album.Album;
 import com.ruchij.photo.album.daos.album.AlbumRepository;
+import com.ruchij.photo.album.daos.photo.Photo;
 import com.ruchij.photo.album.daos.photo.PhotoRepository;
 import com.ruchij.photo.album.daos.user.User;
+import com.ruchij.photo.album.services.exceptions.AuthorizationException;
+import com.ruchij.photo.album.services.exceptions.ResourceNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.core.Authentication;
@@ -62,17 +65,21 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 		Permission permissionType = Permission.parse(permission);
 
 		return switch (targetType) {
-			case "ALBUM" -> albumRepository.findById(targetId.toString())
-				.filter(album ->
-					hasPermissionToAlbum(album, permissionType, userOptional, albumPasswordOptional)
-				)
-				.isPresent();
+			case "ALBUM" -> {
+				Album album =
+					albumRepository.findById(targetId.toString())
+						.orElseThrow(() -> new ResourceNotFoundException(targetId.toString(), Album.class));
 
-			case "PHOTO" -> photoRepository.findById(targetId.toString())
-				.filter(photo ->
-					hasPermissionToAlbum(photo.getAlbum(), permissionType, userOptional, albumPasswordOptional)
-				)
-				.isPresent();
+				yield hasPermissionToAlbum(album, permissionType, userOptional, albumPasswordOptional);
+			}
+
+			case "PHOTO" -> {
+				Photo photo =
+					photoRepository.findById(targetId.toString())
+						.orElseThrow(() -> new ResourceNotFoundException(targetId.toString(), Photo.class));
+
+				yield hasPermissionToAlbum(photo.getAlbum(), permissionType, userOptional, albumPasswordOptional);
+			}
 
 			default -> throw new IllegalStateException("Unexpected value: " + targetType);
 		};
@@ -100,7 +107,18 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 					)
 					.isPresent();
 
-			return isPublic || isUserAlbum || isAlbumPasswordMatch;
+			boolean hasPermission =  isPublic || isUserAlbum || isAlbumPasswordMatch;
+
+			if (!hasPermission) {
+				if (album.getAlbumPassword().isEmpty()) {
+					throw new AuthorizationException("%s is a private photo album".formatted(album.getId()));
+				} else {
+					throw new AuthorizationException("%s requires password to access".formatted(album.getId()));
+				}
+			}
+
+
+			return true;
 		}
 	}
 }
