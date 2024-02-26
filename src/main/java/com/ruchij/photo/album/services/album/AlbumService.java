@@ -3,6 +3,7 @@ package com.ruchij.photo.album.services.album;
 import com.ruchij.photo.album.daos.album.Album;
 import com.ruchij.photo.album.daos.photo.Photo;
 import com.ruchij.photo.album.daos.user.User;
+import jakarta.servlet.http.HttpSession;
 
 import java.util.List;
 import java.util.Optional;

@@ -8,7 +8,7 @@ import com.ruchij.photo.album.daos.user.User;
 import com.ruchij.photo.album.services.exceptions.AuthorizationException;
 import com.ruchij.photo.album.services.exceptions.ResourceNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.security.access.PermissionEvaluator;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -16,11 +16,13 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.io.Serializable;
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 
 @Component
-public class PermissionEvaluatorImpl implements PermissionEvaluator {
-	private static final String ALBUM_PASSWORD_HEADER = "X-Album-Password";
+public class PermissionEvaluatorImpl implements ExtendedPermissionEvaluator {
+	private static final String AUTHENTICATED_ALBUMS = "AUTHENTICATED_ALBUMS";
 
 	enum Permission {
 		READ, WRITE;
@@ -56,9 +58,30 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 		return hasPermission(httpServletRequest, authentication, targetId, targetType, permission);
 	}
 
-	boolean hasPermission(HttpServletRequest httpServletRequest, Authentication authentication, Serializable targetId, String targetType, Object permission) {
-		Optional<String> albumPasswordOptional = Optional.ofNullable(httpServletRequest.getHeader(ALBUM_PASSWORD_HEADER));
+	@Override
+	public Album authenticateAlbum(String albumId, String password, HttpSession httpSession) {
+		Album album = albumRepository.findById(albumId).orElseThrow(() -> new ResourceNotFoundException(albumId, Album.class));
 
+		boolean isAuthenticatedWithAlbumPassword =
+			album.getAlbumPassword()
+				.filter(albumPassword -> passwordEncoder.matches(password, albumPassword.getHashedPassword()))
+				.isPresent();
+
+		if (isAuthenticatedWithAlbumPassword) {
+			Set<String> authenticatedAlbums = (Set<String>) Optional.ofNullable(httpSession.getAttribute(AUTHENTICATED_ALBUMS)).orElse(new HashSet<>());
+			authenticatedAlbums.add(albumId);
+			httpSession.setAttribute(AUTHENTICATED_ALBUMS, authenticatedAlbums);
+			return album;
+		} else if (album.getPublic()) {
+			return album;
+		} else if (album.getAlbumPassword().isEmpty()) {
+			throw new AuthorizationException("Private album: albumId=%s".formatted(albumId));
+		} else {
+			throw new AuthorizationException("Invalid password for albumId=%s".formatted(albumId));
+		}
+	}
+
+	boolean hasPermission(HttpServletRequest httpServletRequest, Authentication authentication, Serializable targetId, String targetType, Object permission) {
 		Optional<User> userOptional =
 			authentication.getPrincipal() instanceof User ? Optional.of((User) authentication.getPrincipal()) : Optional.empty();
 
@@ -70,7 +93,7 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 					albumRepository.findById(targetId.toString())
 						.orElseThrow(() -> new ResourceNotFoundException(targetId.toString(), Album.class));
 
-				yield hasPermissionToAlbum(album, permissionType, userOptional, albumPasswordOptional);
+				yield hasPermissionToAlbum(album, permissionType, userOptional, httpServletRequest.getSession());
 			}
 
 			case "PHOTO" -> {
@@ -78,7 +101,7 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 					photoRepository.findById(targetId.toString())
 						.orElseThrow(() -> new ResourceNotFoundException(targetId.toString(), Photo.class));
 
-				yield hasPermissionToAlbum(photo.getAlbum(), permissionType, userOptional, albumPasswordOptional);
+				yield hasPermissionToAlbum(photo.getAlbum(), permissionType, userOptional, httpServletRequest.getSession());
 			}
 
 			default -> throw new IllegalStateException("Unexpected value: " + targetType);
@@ -89,7 +112,7 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 		Album album,
 		Permission permission,
 		Optional<User> userOptional,
-		Optional<String> albumPasswordOptional
+		HttpSession httpSession
 	) {
 		if (permission == Permission.WRITE) {
 			return userOptional.map(User::getId).equals(Optional.of(album.getUser().getId()));
@@ -99,15 +122,12 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 			boolean isUserAlbum = (userOptional.filter(user ->
 				user.getId().equalsIgnoreCase(album.getUser().getId())).isPresent());
 
-			boolean isAlbumPasswordMatch =
-				albumPasswordOptional.flatMap(albumPassword ->
-						album.getAlbumPassword().filter(savedAlbumPassword ->
-							passwordEncoder.matches(albumPassword, savedAlbumPassword.getHashedPassword())
-						)
-					)
-					.isPresent();
+			Set<String> authenticatedAlbums =
+				(Set<String>) Optional.ofNullable(httpSession.getAttribute(AUTHENTICATED_ALBUMS)).orElse(new HashSet<>());
 
-			boolean hasPermission =  isPublic || isUserAlbum || isAlbumPasswordMatch;
+			boolean isAuthenticatedAlbum = authenticatedAlbums.contains(album.getId());
+
+			boolean hasPermission = isPublic || isUserAlbum || isAuthenticatedAlbum;
 
 			if (!hasPermission) {
 				if (album.getAlbumPassword().isEmpty()) {

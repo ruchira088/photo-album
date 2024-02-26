@@ -4,13 +4,16 @@ import com.ruchij.photo.album.daos.album.Album;
 import com.ruchij.photo.album.daos.photo.Photo;
 import com.ruchij.photo.album.daos.user.User;
 import com.ruchij.photo.album.services.album.AlbumService;
+import com.ruchij.photo.album.services.auth.ExtendedPermissionEvaluator;
 import com.ruchij.photo.album.services.exceptions.ResourceNotFoundException;
 import com.ruchij.photo.album.services.models.FileData;
 import com.ruchij.photo.album.services.photo.PhotoService;
+import com.ruchij.photo.album.web.controllers.requests.AuthenticateAlbumRequest;
 import com.ruchij.photo.album.web.controllers.requests.CreateAlbumRequest;
 import com.ruchij.photo.album.web.controllers.responses.AlbumResponse;
 import com.ruchij.photo.album.web.controllers.responses.AlbumSummaryResponse;
 import com.ruchij.photo.album.web.controllers.responses.PhotoResponse;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -26,10 +29,16 @@ import java.util.Optional;
 public class AlbumController {
 	private final AlbumService albumService;
 	private final PhotoService photoService;
+	private final ExtendedPermissionEvaluator extendedPermissionEvaluator;
 
-	public AlbumController(AlbumService albumService, PhotoService photoService) {
+	public AlbumController(
+		AlbumService albumService,
+		PhotoService photoService,
+		ExtendedPermissionEvaluator extendedPermissionEvaluator
+	) {
 		this.albumService = albumService;
 		this.photoService = photoService;
+		this.extendedPermissionEvaluator = extendedPermissionEvaluator;
 	}
 
 	@PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -75,6 +84,11 @@ public class AlbumController {
 	public AlbumResponse findById(@PathVariable String albumId) {
 		return albumService.findByAlbumId(albumId).map(AlbumResponse::from)
 			.orElseThrow(() -> new ResourceNotFoundException(albumId, Album.class));
+	}
+
+	@PostMapping(path = "/id/{albumId}/authenticate", consumes = MediaType.APPLICATION_JSON_VALUE)
+	public Album authenticate(@PathVariable String albumId, @RequestBody AuthenticateAlbumRequest authenticateAlbumRequest, HttpSession httpSession) {
+		return extendedPermissionEvaluator.authenticateAlbum(albumId, authenticateAlbumRequest.password(), httpSession);
 	}
 
 	@PostMapping(path = "/id/{albumId}/photo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
