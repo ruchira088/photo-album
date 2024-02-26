@@ -60,6 +60,17 @@ public class AlbumController {
 			.toList();
 	}
 
+	@GetMapping("/user")
+	public List<AlbumResponse> getAllByUser(
+		@AuthenticationPrincipal User user,
+		@RequestParam(value = "page-size", defaultValue = "40") Integer pageSize,
+		@RequestParam(value = "page-number", defaultValue = "0") Integer pageNumber
+	) {
+		return albumService
+			.getByUser(user.getId(),pageSize, pageNumber).stream().map(AlbumResponse::from)
+			.toList();
+	}
+
 	@GetMapping(path = "/id/{albumId}")
 	public AlbumResponse findById(@PathVariable String albumId) {
 		return albumService.findByAlbumId(albumId).map(AlbumResponse::from)

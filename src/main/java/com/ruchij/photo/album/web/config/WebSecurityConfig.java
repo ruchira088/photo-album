@@ -37,6 +37,7 @@ public class WebSecurityConfig {
 			)
 			.authorizeHttpRequests((authorize) -> authorize
 				.requestMatchers(HttpMethod.POST, "/album").authenticated()
+				.requestMatchers("/album/user").authenticated()
 				.anyRequest().permitAll()
 			);
 

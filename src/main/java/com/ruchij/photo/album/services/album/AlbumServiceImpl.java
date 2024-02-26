@@ -76,6 +76,13 @@ public class AlbumServiceImpl implements AlbumService {
 	}
 
 	@Override
+	public List<Album> getByUser(String userId, int pageSize, int pageNumber) {
+		Pageable pageable = Pageable.ofSize(pageSize).withPage(pageNumber);
+
+		return albumRepository.getAlbumsByUserId(userId, pageable);
+	}
+
+	@Override
 	@PreAuthorize("hasPermission(#albumId, 'ALBUM', 'READ')")
 	public Optional<Album> findByAlbumId(String albumId) {
 		return albumRepository.findById(albumId);

@@ -12,6 +12,8 @@ public interface AlbumService {
 
 	List<Album> getAll(Optional<User> user, int pageSize, int pageNumber);
 
+	List<Album> getByUser(String userId, int pageSize, int pageNumber);
+
 	Optional<Album> findByAlbumId(String albumId);
 
 	List<Photo> findPhotosByAlbumId(String albumId, int pageSize, int pageNumber);

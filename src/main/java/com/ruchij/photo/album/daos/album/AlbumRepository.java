@@ -12,4 +12,6 @@ public interface AlbumRepository extends CrudRepository<Album, String>, PagingAn
 	List<Album> getAlbumsByIsPublicIsTrueOrAlbumPasswordEmpty(Pageable pageable);
 
 	List<Album> getAlbumsByUserIdOrIsPublicIsTrueOrAlbumPasswordEmpty(String userId, Pageable pageable);
+
+	List<Album> getAlbumsByUserId(String userId, Pageable pageable);
 }
