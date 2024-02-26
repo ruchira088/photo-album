@@ -70,7 +70,7 @@ public class MonitoringServiceImpl implements MonitoringService {
 		return new ServiceInformation(
 			SERVICE_NAME,
 			serviceVersion,
-			clock.instant(),
+			clock.instant().toString(),
 			javaVersion,
 			gitBranch,
 			gitCommit,
