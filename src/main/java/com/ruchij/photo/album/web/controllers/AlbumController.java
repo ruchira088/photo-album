@@ -23,6 +23,8 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(value = "/album", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -87,8 +89,15 @@ public class AlbumController {
 	}
 
 	@PostMapping(path = "/id/{albumId}/authenticate", consumes = MediaType.APPLICATION_JSON_VALUE)
-	public Album authenticate(@PathVariable String albumId, @RequestBody AuthenticateAlbumRequest authenticateAlbumRequest, HttpSession httpSession) {
-		return extendedPermissionEvaluator.authenticateAlbum(albumId, authenticateAlbumRequest.password(), httpSession);
+	public AlbumResponse authenticate(@PathVariable String albumId, @RequestBody AuthenticateAlbumRequest authenticateAlbumRequest, HttpSession httpSession) {
+		Album album = extendedPermissionEvaluator.authenticateAlbum(albumId, authenticateAlbumRequest.password(), httpSession);
+		return AlbumResponse.from(album);
+	}
+
+	@GetMapping(path = "/authenticated")
+	public Set<AlbumResponse> authenticatedAlbums(HttpSession httpSession) {
+		Set<Album> albums = extendedPermissionEvaluator.authenticatedAlbums(httpSession);
+		return albums.stream().map(AlbumResponse::from).collect(Collectors.toSet());
 	}
 
 	@PostMapping(path = "/id/{albumId}/photo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

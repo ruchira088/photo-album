@@ -17,6 +17,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.io.Serializable;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -78,6 +79,18 @@ public class PermissionEvaluatorImpl implements ExtendedPermissionEvaluator {
 			throw new AuthorizationException("Private album: albumId=%s".formatted(albumId));
 		} else {
 			throw new AuthorizationException("Invalid password for albumId=%s".formatted(albumId));
+		}
+	}
+
+	@Override
+	public Set<Album> authenticatedAlbums(HttpSession httpSession) {
+		Set<String> authenticatedAlbums = (Set<String>) Optional.ofNullable(httpSession.getAttribute(AUTHENTICATED_ALBUMS)).orElse(new HashSet<>());
+
+		if (authenticatedAlbums.isEmpty()) {
+			return Set.of();
+		} else {
+			List<Album> albums = albumRepository.getAlbumsByIdIsIn(List.copyOf(authenticatedAlbums));
+			return Set.copyOf(albums);
 		}
 	}
 
