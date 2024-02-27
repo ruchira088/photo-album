@@ -32,7 +32,6 @@ public class PhotoAlbumApplication {
 		return propertySourcesPlaceholderConfigurer;
 	}
 
-
 	@Bean
 	Properties properties() {
 		return System.getProperties();

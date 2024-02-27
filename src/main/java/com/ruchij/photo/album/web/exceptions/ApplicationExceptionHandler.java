@@ -5,6 +5,7 @@ import com.ruchij.photo.album.services.exceptions.ResourceConflictException;
 import com.ruchij.photo.album.services.exceptions.ResourceNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -12,7 +13,7 @@ import java.util.List;
 
 @ControllerAdvice
 public class ApplicationExceptionHandler {
-	@ExceptionHandler({ResourceNotFoundException.class, ResourceConflictException.class, AuthorizationException.class})
+	@ExceptionHandler({ResourceNotFoundException.class, ResourceConflictException.class, AuthorizationException.class, AuthenticationException.class})
 	private ResponseEntity<ErrorMessage> customExceptionHandler(Exception exception) {
 		HttpStatus httpStatus;
 
