@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -63,8 +64,23 @@ public class AuthenticationController {
 	@GetMapping("/current")
 	public ResponseEntity<UserResponse> current(@AuthenticationPrincipal User user) {
 		if (user == null) {
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+			throw new AuthenticationCredentialsNotFoundException("No authenticated user found");
 		} else {
+			return ResponseEntity.ok(UserResponse.from(user));
+		}
+	}
+
+	@DeleteMapping("/logout")
+	public ResponseEntity<UserResponse> logout(
+		@AuthenticationPrincipal User user,
+		Authentication authentication,
+		HttpServletRequest httpServletRequest,
+		HttpServletResponse httpServletResponse
+	) {
+		if (user == null) {
+			throw new AuthenticationCredentialsNotFoundException("No authenticated user found");
+		} else {
+			logoutHandler.logout(httpServletRequest, httpServletResponse, authentication);
 			return ResponseEntity.ok(UserResponse.from(user));
 		}
 	}

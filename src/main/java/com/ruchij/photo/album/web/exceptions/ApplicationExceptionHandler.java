@@ -21,8 +21,12 @@ public class ApplicationExceptionHandler {
 			httpStatus = HttpStatus.NOT_FOUND;
 		} else if (exception instanceof ResourceConflictException) {
 			httpStatus = HttpStatus.CONFLICT;
-		} else {
+		} else if (exception instanceof AuthenticationException){
+			httpStatus = HttpStatus.UNAUTHORIZED;
+		} else if (exception instanceof AuthorizationException) {
 			httpStatus = HttpStatus.FORBIDDEN;
+		} else {
+			httpStatus = HttpStatus.SERVICE_UNAVAILABLE;
 		}
 
 		return ResponseEntity
