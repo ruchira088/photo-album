@@ -50,7 +50,6 @@ public class WebSecurityConfig {
 				httpSecurityExceptionHandlingConfigurer
 					.authenticationEntryPoint(authenticationEntryPoint(objectMapper))
 			)
-			.cors(Customizer.withDefaults())
 			.securityContext(
 				securityContext -> securityContext.securityContextRepository(securityContextRepository)
 			)
