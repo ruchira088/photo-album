@@ -1,6 +1,6 @@
 FROM eclipse-temurin:21-jre
 
-LABEL org.opencontainers.image.source https://github.com/ruchira088/photo-album
+LABEL org.opencontainers.image.source=https://github.com/ruchira088/photo-album
 
 WORKDIR /opt/photo-album
 
