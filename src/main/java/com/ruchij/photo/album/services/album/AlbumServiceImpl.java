@@ -124,6 +124,20 @@ public class AlbumServiceImpl implements AlbumService {
 	}
 
 	@Override
+	@PreAuthorize("hasPermission(#albumId, 'ALBUM', 'WRITE')")
+	public Album updateById(String albumId, String name, Optional<String> description, boolean isPublic) {
+		Album album = getByAlbumId(albumId);
+
+		album.setName(name);
+		album.setDescription(description);
+		album.setPublic(isPublic);
+
+		Album savedAlbum = albumRepository.save(album);
+
+		return savedAlbum;
+	}
+
+	@Override
 	@PreAuthorize("hasPermission(#albumId, 'ALBUM', 'READ')")
 	public List<Photo> findPhotosByAlbumId(String albumId, int pageSize, int pageNumber) {
 		albumRepository.findById(albumId).orElseThrow(() -> new ResourceNotFoundException(albumId, Album.class));

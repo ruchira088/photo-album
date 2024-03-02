@@ -5,11 +5,11 @@ import com.ruchij.photo.album.daos.photo.Photo;
 import com.ruchij.photo.album.daos.user.User;
 import com.ruchij.photo.album.services.album.AlbumService;
 import com.ruchij.photo.album.services.auth.ExtendedPermissionEvaluator;
-import com.ruchij.photo.album.services.exceptions.ResourceNotFoundException;
 import com.ruchij.photo.album.services.models.FileData;
 import com.ruchij.photo.album.services.photo.PhotoService;
 import com.ruchij.photo.album.web.controllers.requests.AuthenticateAlbumRequest;
 import com.ruchij.photo.album.web.controllers.requests.CreateAlbumRequest;
+import com.ruchij.photo.album.web.controllers.requests.UpdateAlbumRequest;
 import com.ruchij.photo.album.web.controllers.responses.AlbumResponse;
 import com.ruchij.photo.album.web.controllers.responses.AlbumSummaryResponse;
 import com.ruchij.photo.album.web.controllers.responses.PhotoResponse;
@@ -79,13 +79,29 @@ public class AlbumController {
 		@RequestParam(value = "page-number", defaultValue = "0") Integer pageNumber
 	) {
 		return albumService
-			.getByUser(user.getId(),pageSize, pageNumber).stream().map(AlbumResponse::from)
+			.getByUser(user.getId(), pageSize, pageNumber).stream().map(AlbumResponse::from)
 			.toList();
 	}
 
 	@GetMapping(path = "/id/{albumId}")
 	public AlbumResponse findById(@PathVariable String albumId) {
 		Album album = albumService.getByAlbumId(albumId);
+		return AlbumResponse.from(album);
+	}
+
+	@PutMapping(path = "/id/{albumId}", consumes = MediaType.APPLICATION_JSON_VALUE)
+	public AlbumResponse updateById(
+		@PathVariable String albumId,
+		@Valid @RequestBody UpdateAlbumRequest updateAlbumRequest
+	) {
+		Album album =
+			albumService.updateById(
+				albumId,
+				updateAlbumRequest.name(),
+				updateAlbumRequest.description(),
+				updateAlbumRequest.isPublic()
+			);
+
 		return AlbumResponse.from(album);
 	}
 
