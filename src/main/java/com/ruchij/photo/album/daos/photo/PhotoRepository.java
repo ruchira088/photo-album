@@ -6,7 +6,11 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface PhotoRepository extends CrudRepository<Photo, String>, PagingAndSortingRepository<Photo, String> {
 	Page<Photo> findPhotosByAlbumId(String albumId, Pageable pageable);
+
+	List<Photo> findPhotosByAlbumId(String albumId);
 }

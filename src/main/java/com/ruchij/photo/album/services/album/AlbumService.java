@@ -17,5 +17,7 @@ public interface AlbumService {
 
 	Optional<Album> findByAlbumId(String albumId);
 
+	Optional<Album> deleteById(String albumId);
+
 	List<Photo> findPhotosByAlbumId(String albumId, int pageSize, int pageNumber);
 }
