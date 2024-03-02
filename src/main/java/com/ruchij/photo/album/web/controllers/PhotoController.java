@@ -24,9 +24,14 @@ public class PhotoController {
 
 	@GetMapping(value = "/id/{photoId}", produces = MediaType.APPLICATION_JSON_VALUE)
 	public PhotoResponse getPhotoById(@PathVariable String photoId) {
-		Photo photo =
-			photoService.findByPhotoId(photoId)
-				.orElseThrow(() -> new ResourceNotFoundException(photoId, Photo.class));
+		Photo photo = photoService.getByPhotoId(photoId);
+
+		return PhotoResponse.from(photo);
+	}
+
+	@DeleteMapping(value = "/id/{photoId}", produces = MediaType.APPLICATION_JSON_VALUE)
+	public PhotoResponse deletePhotoById(@PathVariable String photoId) throws IOException {
+		Photo photo = photoService.deletePhotoById(photoId);
 
 		return PhotoResponse.from(photo);
 	}

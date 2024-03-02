@@ -85,14 +85,14 @@ public class AlbumController {
 
 	@GetMapping(path = "/id/{albumId}")
 	public AlbumResponse findById(@PathVariable String albumId) {
-		return albumService.findByAlbumId(albumId).map(AlbumResponse::from)
-			.orElseThrow(() -> new ResourceNotFoundException(albumId, Album.class));
+		Album album = albumService.getByAlbumId(albumId);
+		return AlbumResponse.from(album);
 	}
 
 	@DeleteMapping(path = "/id/{albumId}")
 	public AlbumResponse deleteById(@PathVariable String albumId) {
-		return albumService.deleteById(albumId).map(AlbumResponse::from)
-			.orElseThrow(() -> new ResourceNotFoundException(albumId, Album.class));
+		Album album = albumService.deleteById(albumId);
+		return AlbumResponse.from(album);
 	}
 
 	@PostMapping(path = "/id/{albumId}/authenticate", consumes = MediaType.APPLICATION_JSON_VALUE)

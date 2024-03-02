@@ -93,34 +93,34 @@ public class AlbumServiceImpl implements AlbumService {
 
 	@Override
 	@PreAuthorize("hasPermission(#albumId, 'ALBUM', 'READ')")
-	public Optional<Album> findByAlbumId(String albumId) {
-		return albumRepository.findById(albumId);
+	public Album getByAlbumId(String albumId) {
+		return albumRepository.findById(albumId)
+			.orElseThrow(() -> new ResourceNotFoundException(albumId, Album.class));
 	}
 
 	@Override
 	@PreAuthorize("hasPermission(#albumId, 'ALBUM', 'WRITE')")
-	public Optional<Album> deleteById(String albumId) {
-		Optional<Album> albumOptional = albumRepository.findById(albumId);
+	public Album deleteById(String albumId) {
+		Album album = getByAlbumId(albumId);
 
-		albumOptional.ifPresent(album -> {
-			List<Photo> photos = photoRepository.findPhotosByAlbumId(albumId);
-			photos.forEach(photo -> {
-				photoRepository.deleteById(photo.getId());
+		List<Photo> photos = photoRepository.findPhotosByAlbumId(albumId);
 
-				try {
-					storage.deleteByResourceFileId(photo.getResourceFile().getId());
-				} catch (IOException ioException) {
-					logger.warn(
-						"Unable to delete resource file id=%s".formatted(photo.getResourceFile().getId()),
-						ioException
-					);
-				}
-			});
+		photos.forEach(photo -> {
+			photoRepository.deleteById(photo.getId());
 
-			albumRepository.deleteById(albumId);
+			try {
+				storage.deleteByResourceFileId(photo.getResourceFile().getId());
+			} catch (IOException ioException) {
+				logger.warn(
+					"Unable to delete resource file id=%s".formatted(photo.getResourceFile().getId()),
+					ioException
+				);
+			}
 		});
 
-		return albumOptional;
+		albumRepository.deleteById(albumId);
+
+		return album;
 	}
 
 	@Override

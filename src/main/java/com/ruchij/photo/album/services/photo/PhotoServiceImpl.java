@@ -66,8 +66,12 @@ public class PhotoServiceImpl implements PhotoService {
 
 	@Override
 	@PreAuthorize("hasPermission(#photoId, 'PHOTO', 'READ')")
-	public Optional<Photo> findByPhotoId(String photoId) {
-		return photoRepository.findById(photoId);
+	public Photo getByPhotoId(String photoId) {
+		Photo photo =
+			photoRepository.findById(photoId)
+				.orElseThrow(() -> new ResourceNotFoundException(photoId, Photo.class));
+
+		return photo;
 	}
 
 	@Override
@@ -85,10 +89,7 @@ public class PhotoServiceImpl implements PhotoService {
 	@Override
 	@PreAuthorize("hasPermission(#photoId, 'PHOTO', 'WRITE')")
 	public Photo deletePhotoById(String photoId) throws IOException {
-		Photo photo =
-			photoRepository.findById(photoId)
-				.orElseThrow(() -> new ResourceNotFoundException(photoId, Photo.class));
-
+		Photo photo = getByPhotoId(photoId);
 		photoRepository.deleteById(photoId);
 		storage.deleteByResourceFileId(photo.getResourceFile().getId());
 

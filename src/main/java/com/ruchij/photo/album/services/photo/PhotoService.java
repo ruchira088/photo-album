@@ -14,7 +14,7 @@ public interface PhotoService {
 		Optional<String> description
 	) throws IOException;
 
-	Optional<Photo> findByPhotoId(String photoId);
+	Photo getByPhotoId(String photoId);
 
 	FileData getFileDataByPhotoId(String photoId) throws IOException;
 

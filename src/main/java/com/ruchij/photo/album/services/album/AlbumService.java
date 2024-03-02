@@ -3,7 +3,6 @@ package com.ruchij.photo.album.services.album;
 import com.ruchij.photo.album.daos.album.Album;
 import com.ruchij.photo.album.daos.photo.Photo;
 import com.ruchij.photo.album.daos.user.User;
-import jakarta.servlet.http.HttpSession;
 
 import java.util.List;
 import java.util.Optional;
@@ -15,9 +14,9 @@ public interface AlbumService {
 
 	List<Album> getByUser(String userId, int pageSize, int pageNumber);
 
-	Optional<Album> findByAlbumId(String albumId);
+	Album getByAlbumId(String albumId);
 
-	Optional<Album> deleteById(String albumId);
+	Album deleteById(String albumId);
 
 	List<Photo> findPhotosByAlbumId(String albumId, int pageSize, int pageNumber);
 }

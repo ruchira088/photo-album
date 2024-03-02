@@ -100,10 +100,7 @@ class AlbumControllerTest {
 			new UsernamePasswordAuthenticationToken(authenticationDetails.user(), null);
 		SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
 
-		Optional<Album> maybeSavedAlbum = albumService.findByAlbumId("mock-album-id");
-		Assertions.assertTrue(maybeSavedAlbum.isPresent());
-
-		Album savedAlbum = maybeSavedAlbum.get();
+		Album savedAlbum = albumService.getByAlbumId("mock-album-id");
 		assertEquals("mock-album-id", savedAlbum.getId());
 		assertEquals("album-name", savedAlbum.getName());
 		assertEquals(Optional.of("album-description"), savedAlbum.getDescription());
