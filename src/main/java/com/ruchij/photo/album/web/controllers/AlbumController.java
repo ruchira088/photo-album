@@ -14,6 +14,7 @@ import com.ruchij.photo.album.web.controllers.responses.AlbumResponse;
 import com.ruchij.photo.album.web.controllers.responses.AlbumSummaryResponse;
 import com.ruchij.photo.album.web.controllers.responses.PhotoResponse;
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -46,7 +47,7 @@ public class AlbumController {
 	@PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseStatus(HttpStatus.CREATED)
 	public AlbumResponse create(
-		@RequestBody CreateAlbumRequest createAlbumRequest,
+		@Valid @RequestBody CreateAlbumRequest createAlbumRequest,
 		@AuthenticationPrincipal User user
 	) {
 		Album album =
