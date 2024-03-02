@@ -6,8 +6,11 @@ import com.ruchij.photo.album.daos.album.AlbumPassword;
 import com.ruchij.photo.album.daos.album.AlbumRepository;
 import com.ruchij.photo.album.daos.photo.Photo;
 import com.ruchij.photo.album.daos.photo.PhotoRepository;
+import com.ruchij.photo.album.daos.resource.ResourceFile;
+import com.ruchij.photo.album.daos.resource.ResourceFileRepository;
 import com.ruchij.photo.album.daos.user.User;
 import com.ruchij.photo.album.services.exceptions.ResourceNotFoundException;
+import com.ruchij.photo.album.services.models.FileData;
 import com.ruchij.photo.album.services.storage.Storage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -135,6 +138,35 @@ public class AlbumServiceImpl implements AlbumService {
 		Album savedAlbum = albumRepository.save(album);
 
 		return savedAlbum;
+	}
+
+	@Override
+	@PreAuthorize("hasPermission(#albumId, 'ALBUM', 'WRITE')")
+	public Album setAlbumCover(String albumId, FileData fileData) throws IOException {
+		Album album = getByAlbumId(albumId);
+
+		ResourceFile resourceFile = storage.insert(fileData);
+		album.setResourceFile(Optional.of(resourceFile));
+
+		Album savedAlbum = albumRepository.save(album);
+
+		return savedAlbum;
+	}
+
+	@Override
+	@PreAuthorize("hasPermission(#albumId, 'ALBUM', 'READ')")
+	public FileData getAlbumCover(String albumId) throws IOException {
+		Album album = getByAlbumId(albumId);
+
+		ResourceFile resourceFile =
+			album.getResourceFile()
+				.orElseThrow(() ->
+					new ResourceNotFoundException("Album cover NOT found for albumId=%s".formatted(albumId))
+				);
+
+		FileData fileData = storage.getFileDataByResourceId(resourceFile.getId());
+
+		return fileData;
 	}
 
 	@Override

@@ -13,8 +13,10 @@ import com.ruchij.photo.album.web.controllers.requests.UpdateAlbumRequest;
 import com.ruchij.photo.album.web.controllers.responses.AlbumResponse;
 import com.ruchij.photo.album.web.controllers.responses.AlbumSummaryResponse;
 import com.ruchij.photo.album.web.controllers.responses.PhotoResponse;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -105,6 +107,35 @@ public class AlbumController {
 		return AlbumResponse.from(album);
 	}
 
+	@PostMapping(path = "/id/{albumId}/album-cover", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	public AlbumResponse setAlbumCover(
+		@PathVariable String albumId,
+		@RequestParam(name = "photo") MultipartFile photoFile
+	) throws IOException {
+		FileData fileData =
+			new FileData(
+				photoFile.getOriginalFilename(),
+				photoFile.getContentType(),
+				photoFile.getSize(),
+				photoFile.getInputStream()
+			);
+
+		Album album = albumService.setAlbumCover(albumId, fileData);
+
+		return AlbumResponse.from(album);
+	}
+
+	@GetMapping(path = "/id/{albumId}/album-cover")
+	public void getAlbumCover(@PathVariable String albumId, HttpServletResponse httpServletResponse)
+		throws IOException {
+		FileData fileData = albumService.getAlbumCover(albumId);
+
+		httpServletResponse.setContentType(fileData.contentType());
+		httpServletResponse.setStatus(HttpStatus.OK.value());
+		httpServletResponse.addHeader(HttpHeaders.CONTENT_LENGTH, fileData.size().toString());
+		fileData.data().transferTo(httpServletResponse.getOutputStream());
+	}
+
 	@DeleteMapping(path = "/id/{albumId}")
 	public AlbumResponse deleteById(@PathVariable String albumId) {
 		Album album = albumService.deleteById(albumId);
@@ -131,7 +162,13 @@ public class AlbumController {
 		@RequestParam Optional<String> title,
 		@RequestParam Optional<String> description
 	) throws IOException {
-		FileData fileData = new FileData(photoFile.getOriginalFilename(), photoFile.getContentType(), photoFile.getSize(), photoFile.getInputStream());
+		FileData fileData =
+			new FileData(
+				photoFile.getOriginalFilename(),
+				photoFile.getContentType(),
+				photoFile.getSize(),
+				photoFile.getInputStream()
+			);
 
 		Photo photo = photoService.insert(albumId, fileData, title, description);
 

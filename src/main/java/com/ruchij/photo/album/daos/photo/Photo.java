@@ -16,8 +16,8 @@ public class Photo {
 	@Column(name = "created_at", nullable = false, updatable = false)
 	private Instant createdAt;
 
-	@ManyToOne(optional = false)
-	@JoinColumn(name = "album_id", nullable = false)
+	@ManyToOne
+	@JoinColumn(name = "album_id")
 	private Album album;
 
 	@Column(name = "title")
