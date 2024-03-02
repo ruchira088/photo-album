@@ -6,6 +6,7 @@ import com.ruchij.photo.album.web.controllers.requests.LoginRequest;
 import com.ruchij.photo.album.web.controllers.responses.UserResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -42,7 +43,7 @@ public class AuthenticationController {
 	@PostMapping(path = "/login", consumes = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseStatus(HttpStatus.CREATED)
 	public UserResponse login(
-		@RequestBody LoginRequest loginRequest,
+		@Valid @RequestBody LoginRequest loginRequest,
 		HttpServletRequest httpServletRequest,
 		HttpServletResponse httpServletResponse
 	) {

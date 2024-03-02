@@ -1,4 +1,6 @@
 package com.ruchij.photo.album.web.controllers.requests;
 
-public record AuthenticateAlbumRequest(String password) {
+import jakarta.validation.constraints.NotBlank;
+
+public record AuthenticateAlbumRequest(@NotBlank(message = "password CANNOT be blank") String password) {
 }

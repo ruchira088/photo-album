@@ -5,6 +5,7 @@ import com.ruchij.photo.album.services.exceptions.ResourceConflictException;
 import com.ruchij.photo.album.services.user.UserService;
 import com.ruchij.photo.album.web.controllers.requests.CreateUserRequest;
 import com.ruchij.photo.album.web.controllers.responses.UserResponse;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -20,7 +21,7 @@ public class UserController {
 
 	@PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseStatus(HttpStatus.CREATED)
-	public UserResponse create(@RequestBody CreateUserRequest createUserRequest) throws ResourceConflictException {
+	public UserResponse create(@Valid @RequestBody CreateUserRequest createUserRequest) throws ResourceConflictException {
 
 		User user = userService.create(
 			createUserRequest.email(),

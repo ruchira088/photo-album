@@ -90,7 +90,7 @@ public class AlbumController {
 	}
 
 	@PostMapping(path = "/id/{albumId}/authenticate", consumes = MediaType.APPLICATION_JSON_VALUE)
-	public AlbumResponse authenticate(@PathVariable String albumId, @RequestBody AuthenticateAlbumRequest authenticateAlbumRequest, HttpSession httpSession) {
+	public AlbumResponse authenticate(@PathVariable String albumId, @Valid @RequestBody AuthenticateAlbumRequest authenticateAlbumRequest, HttpSession httpSession) {
 		Album album = extendedPermissionEvaluator.authenticateAlbum(albumId, authenticateAlbumRequest.password(), httpSession);
 		return AlbumResponse.from(album);
 	}
