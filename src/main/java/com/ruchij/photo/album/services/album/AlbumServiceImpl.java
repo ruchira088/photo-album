@@ -2,15 +2,18 @@ package com.ruchij.photo.album.services.album;
 
 import com.ruchij.photo.album.components.id.IdGenerator;
 import com.ruchij.photo.album.daos.album.Album;
+import com.ruchij.photo.album.daos.album.AlbumCover;
 import com.ruchij.photo.album.daos.album.AlbumPassword;
 import com.ruchij.photo.album.daos.album.AlbumRepository;
 import com.ruchij.photo.album.daos.photo.Photo;
 import com.ruchij.photo.album.daos.photo.PhotoRepository;
 import com.ruchij.photo.album.daos.resource.ResourceFile;
-import com.ruchij.photo.album.daos.resource.ResourceFileRepository;
 import com.ruchij.photo.album.daos.user.User;
 import com.ruchij.photo.album.services.exceptions.ResourceNotFoundException;
+import com.ruchij.photo.album.services.models.Dimensions;
 import com.ruchij.photo.album.services.models.FileData;
+import com.ruchij.photo.album.services.models.ImageData;
+import com.ruchij.photo.album.services.photo.PhotoService;
 import com.ruchij.photo.album.services.storage.Storage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -142,11 +145,20 @@ public class AlbumServiceImpl implements AlbumService {
 
 	@Override
 	@PreAuthorize("hasPermission(#albumId, 'ALBUM', 'WRITE')")
-	public Album setAlbumCover(String albumId, FileData fileData) throws IOException {
+	public Album setAlbumCover(String albumId, FileData fileData, Optional<Dimensions> dimensions) throws IOException {
 		Album album = getByAlbumId(albumId);
+		ImageData imageData = PhotoService.getImageDimensions(fileData, dimensions);
 
-		ResourceFile resourceFile = storage.insert(fileData);
-		album.setResourceFile(Optional.of(resourceFile));
+		ResourceFile resourceFile = storage.insert(imageData.fileData());
+
+		AlbumCover albumCover = new AlbumCover();
+		albumCover.setAlbum(album);
+		albumCover.setCreatedAt(clock.instant());
+		albumCover.setHeight(imageData.dimensions().height());
+		albumCover.setWidth(imageData.dimensions().width());
+		albumCover.setResourceFile(resourceFile);
+
+		album.setAlbumCover(Optional.of(albumCover));
 
 		Album savedAlbum = albumRepository.save(album);
 
@@ -159,7 +171,7 @@ public class AlbumServiceImpl implements AlbumService {
 		Album album = getByAlbumId(albumId);
 
 		ResourceFile resourceFile =
-			album.getResourceFile()
+			album.getAlbumCover().map(AlbumCover::getResourceFile)
 				.orElseThrow(() ->
 					new ResourceNotFoundException("Album cover NOT found for albumId=%s".formatted(albumId))
 				);

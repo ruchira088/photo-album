@@ -3,7 +3,7 @@ package com.ruchij.photo.album.daos.album;
 import jakarta.persistence.*;
 
 @Entity(name = "album_password")
-public class AlbumPassword {
+public final class AlbumPassword {
 	@Id
 	@OneToOne
 	@JoinColumn(name = "album_id")

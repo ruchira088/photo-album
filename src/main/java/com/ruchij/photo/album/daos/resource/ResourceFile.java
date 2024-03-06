@@ -7,7 +7,7 @@ import jakarta.persistence.Id;
 import java.time.Instant;
 
 @Entity(name = "resource_file")
-public class ResourceFile {
+public final class ResourceFile {
 	@Id
 	@Column(name = "id", nullable = false, unique = true, updatable = false)
 	private String id;

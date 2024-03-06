@@ -7,7 +7,9 @@ import com.ruchij.photo.album.daos.photo.Photo;
 import com.ruchij.photo.album.daos.photo.PhotoRepository;
 import com.ruchij.photo.album.daos.resource.ResourceFile;
 import com.ruchij.photo.album.services.exceptions.ResourceNotFoundException;
+import com.ruchij.photo.album.services.models.Dimensions;
 import com.ruchij.photo.album.services.models.FileData;
+import com.ruchij.photo.album.services.models.ImageData;
 import com.ruchij.photo.album.services.storage.Storage;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
@@ -41,7 +43,7 @@ public class PhotoServiceImpl implements PhotoService {
 
 	@Override
 	@PreAuthorize("hasPermission(#albumId, 'ALBUM', 'WRITE')")
-	public Photo insert(String albumId, FileData fileData, Optional<String> title, Optional<String> description) throws IOException {
+	public Photo insert(String albumId, FileData fileData, Optional<String> title, Optional<String> description, Optional<Dimensions> dimensions) throws IOException {
 		Album album =
 			albumRepository.findById(albumId)
 				.orElseThrow(() -> new ResourceNotFoundException(albumId, Album.class));
@@ -49,13 +51,16 @@ public class PhotoServiceImpl implements PhotoService {
 		String photoId = idGenerator.generateId(Photo.class);
 		Instant instant = clock.instant();
 
-		ResourceFile resourceFile = storage.insert(fileData);
+		ImageData imageData = PhotoService.getImageDimensions(fileData, dimensions);
+		ResourceFile resourceFile = storage.insert(imageData.fileData());
 
 		Photo photo = new Photo();
 		photo.setId(photoId);
 		photo.setCreatedAt(instant);
 		photo.setAlbum(album);
 		photo.setTitle(title);
+		photo.setWidth(imageData.dimensions().width());
+		photo.setHeight(imageData.dimensions().height());
 		photo.setDescription(description);
 		photo.setResourceFile(resourceFile);
 

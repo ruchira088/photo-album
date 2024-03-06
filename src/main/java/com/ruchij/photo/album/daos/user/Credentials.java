@@ -5,7 +5,7 @@ import jakarta.persistence.*;
 import java.io.Serializable;
 
 @Entity(name = "credentials")
-public class Credentials implements Serializable {
+public final class Credentials implements Serializable {
 	@Id
 	@OneToOne
 	@JoinColumn(name = "user_id")

@@ -8,7 +8,7 @@ import java.time.Instant;
 import java.util.Optional;
 
 @Entity(name = "photo")
-public class Photo {
+public final class Photo {
 	@Id
 	@Column(name = "id", nullable = false, unique = true, updatable = false)
 	private String id;
@@ -25,6 +25,12 @@ public class Photo {
 
 	@Column(name = "description")
 	private String description;
+
+	@Column(name = "width", nullable = false)
+	private Integer width;
+
+	@Column(name = "height", nullable = false)
+	private Integer height;
 
 	@OneToOne(optional = false)
 	@JoinColumn(name = "resource_file_id", nullable = false)
@@ -76,5 +82,21 @@ public class Photo {
 
 	public void setResourceFile(ResourceFile resourceFile) {
 		this.resourceFile = resourceFile;
+	}
+
+	public Integer getWidth() {
+		return width;
+	}
+
+	public void setWidth(Integer width) {
+		this.width = width;
+	}
+
+	public Integer getHeight() {
+		return height;
+	}
+
+	public void setHeight(Integer height) {
+		this.height = height;
 	}
 }

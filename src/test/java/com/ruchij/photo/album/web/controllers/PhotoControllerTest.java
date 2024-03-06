@@ -66,13 +66,13 @@ class PhotoControllerTest {
 
 		album = albumService.create("My Photo Album", Optional.of("This is the description"), false, Optional.empty(), authenticationDetails.user());
 		byte[] data = imageData();
-		FileData fileData = new FileData("maltese-dog.jpg", MediaType.IMAGE_JPEG_VALUE, (long) data.length, new ByteArrayInputStream(data));
+		FileData fileData = new FileData("profile-image.jpeg", MediaType.IMAGE_JPEG_VALUE, (long) data.length, new ByteArrayInputStream(data));
 
-		photo = photoService.insert(album.getId(), fileData, Optional.of("photo-1"), Optional.empty());
+		photo = photoService.insert(album.getId(), fileData, Optional.of("photo-1"), Optional.empty(), Optional.empty());
 	}
 
 	private byte[] imageData() throws IOException {
-		return getClass().getClassLoader().getResourceAsStream("maltese-dog.jpg").readAllBytes();
+		return getClass().getClassLoader().getResourceAsStream("profile-image.jpeg").readAllBytes();
 	}
 
 	@Test

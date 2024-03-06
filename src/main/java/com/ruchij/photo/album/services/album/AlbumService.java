@@ -1,9 +1,12 @@
 package com.ruchij.photo.album.services.album;
 
 import com.ruchij.photo.album.daos.album.Album;
+import com.ruchij.photo.album.daos.album.AlbumCover;
 import com.ruchij.photo.album.daos.photo.Photo;
 import com.ruchij.photo.album.daos.user.User;
+import com.ruchij.photo.album.services.models.Dimensions;
 import com.ruchij.photo.album.services.models.FileData;
+import com.ruchij.photo.album.services.models.ImageData;
 
 import java.io.IOException;
 import java.util.List;
@@ -22,7 +25,7 @@ public interface AlbumService {
 
 	Album updateById(String albumId, String name, Optional<String> description, boolean isPublic);
 
-	Album setAlbumCover(String albumId, FileData fileData) throws IOException;
+	Album setAlbumCover(String albumId, FileData fileData, Optional<Dimensions> dimensions) throws IOException;
 
 	FileData getAlbumCover(String albumId) throws IOException;
 

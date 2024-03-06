@@ -118,7 +118,7 @@ class AlbumControllerTest {
 
 	@Test
 	void shouldSavePhotoInAlbum() throws Exception {
-		String fileKey = "id-3-maltese-dog.jpg";
+		String fileKey = "id-3-profile-image.jpeg";
 		try {
 			Mockito.doReturn("id-0", "id-1", "id-2", "id-3").when(idGenerator).generateId();
 
@@ -131,12 +131,12 @@ class AlbumControllerTest {
 					authenticationDetails.user()
 				);
 
-			byte[] data = getClass().getClassLoader().getResourceAsStream("maltese-dog.jpg").readAllBytes();
+			byte[] data = getClass().getClassLoader().getResourceAsStream("profile-image.jpeg").readAllBytes();
 
 			MockMultipartFile multipartFile =
 				new MockMultipartFile(
 					"photo",
-					"maltese-dog.jpg",
+					"profile-image.jpeg",
 					MediaType.IMAGE_JPEG_VALUE,
 					new ByteArrayInputStream(data)
 				);
@@ -195,6 +195,8 @@ class AlbumControllerTest {
 			photo.setCreatedAt(Instant.now());
 			photo.setAlbum(album);
 			photo.setResourceFile(resourceFiles.get(i - 1));
+			photo.setWidth(1920);
+			photo.setHeight(1080);
 
 			photoRepository.save(photo);
 		}

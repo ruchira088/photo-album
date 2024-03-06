@@ -1,6 +1,5 @@
 package com.ruchij.photo.album.daos.album;
 
-import com.ruchij.photo.album.daos.resource.ResourceFile;
 import com.ruchij.photo.album.daos.user.User;
 import jakarta.persistence.*;
 
@@ -32,9 +31,8 @@ public final class Album {
 	@OneToOne(cascade = CascadeType.ALL, mappedBy = "album")
 	private AlbumPassword albumPassword;
 
-	@OneToOne
-	@JoinColumn(name = "album_cover_id")
-	private ResourceFile resourceFile;
+	@OneToOne(cascade = CascadeType.ALL, mappedBy = "album")
+	private AlbumCover albumCover;
 
 	public String getId() {
 		return id;
@@ -92,11 +90,11 @@ public final class Album {
 		this.albumPassword = albumPassword.orElse(null);
 	}
 
-	public Optional<ResourceFile> getResourceFile() {
-		return Optional.ofNullable(resourceFile);
+	public Optional<AlbumCover> getAlbumCover() {
+		return Optional.ofNullable(albumCover);
 	}
 
-	public void setResourceFile(Optional<ResourceFile> resourceFile) {
-		this.resourceFile = resourceFile.orElse(null);
+	public void setAlbumCover(Optional<AlbumCover> albumCover) {
+		this.albumCover = albumCover.orElse(null);
 	}
 }

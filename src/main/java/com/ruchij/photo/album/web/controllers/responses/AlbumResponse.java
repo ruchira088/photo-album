@@ -10,8 +10,11 @@ public record AlbumResponse(
 	String name,
 	Optional<String> description,
 	boolean isPublic,
-	boolean isPasswordProtected
+	boolean isPasswordProtected,
+	Optional<AlbumCoverResponse> albumCover
 ) {
+	public record AlbumCoverResponse(int width, int height) {}
+
 	public static AlbumResponse from(Album album) {
 		return new AlbumResponse(
 			album.getId(),
@@ -19,7 +22,8 @@ public record AlbumResponse(
 			album.getName(),
 			album.getDescription(),
 			album.getPublic(),
-			album.getAlbumPassword().isPresent()
+			album.getAlbumPassword().isPresent(),
+			album.getAlbumCover().map(albumCover -> new AlbumCoverResponse(albumCover.getWidth(), albumCover.getHeight()))
 		);
 	}
 }

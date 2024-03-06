@@ -5,6 +5,7 @@ import com.ruchij.photo.album.daos.photo.Photo;
 import com.ruchij.photo.album.daos.user.User;
 import com.ruchij.photo.album.services.album.AlbumService;
 import com.ruchij.photo.album.services.auth.ExtendedPermissionEvaluator;
+import com.ruchij.photo.album.services.models.Dimensions;
 import com.ruchij.photo.album.services.models.FileData;
 import com.ruchij.photo.album.services.photo.PhotoService;
 import com.ruchij.photo.album.web.controllers.requests.AuthenticateAlbumRequest;
@@ -110,7 +111,9 @@ public class AlbumController {
 	@PostMapping(path = "/id/{albumId}/album-cover", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public AlbumResponse setAlbumCover(
 		@PathVariable String albumId,
-		@RequestParam(name = "photo") MultipartFile photoFile
+		@RequestParam(name = "photo") MultipartFile photoFile,
+		@RequestParam Optional<Integer> height,
+		@RequestParam Optional<Integer> width
 	) throws IOException {
 		FileData fileData =
 			new FileData(
@@ -120,7 +123,10 @@ public class AlbumController {
 				photoFile.getInputStream()
 			);
 
-		Album album = albumService.setAlbumCover(albumId, fileData);
+		Optional<Dimensions> dimensions =
+			width.flatMap(w -> height.map(h -> new Dimensions(w, h)));
+
+		Album album = albumService.setAlbumCover(albumId, fileData, dimensions);
 
 		return AlbumResponse.from(album);
 	}
@@ -159,6 +165,8 @@ public class AlbumController {
 	public PhotoResponse insertPhoto(
 		@PathVariable String albumId,
 		@RequestParam(name = "photo") MultipartFile photoFile,
+		@RequestParam Optional<Integer> width,
+		@RequestParam Optional<Integer> height,
 		@RequestParam Optional<String> title,
 		@RequestParam Optional<String> description
 	) throws IOException {
@@ -170,7 +178,10 @@ public class AlbumController {
 				photoFile.getInputStream()
 			);
 
-		Photo photo = photoService.insert(albumId, fileData, title, description);
+		Optional<Dimensions> dimensions =
+			width.flatMap(w -> height.map(h -> new Dimensions(w, h)));
+
+		Photo photo = photoService.insert(albumId, fileData, title, description, dimensions);
 
 		return PhotoResponse.from(photo);
 	}

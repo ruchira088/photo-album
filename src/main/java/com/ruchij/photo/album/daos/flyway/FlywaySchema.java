@@ -7,7 +7,7 @@ import jakarta.persistence.Id;
 import java.time.Instant;
 
 @Entity(name = "flyway_schema_history")
-public class FlywaySchema {
+public final class FlywaySchema {
 	@Id
 	@Column(name = "installed_rank")
 	private Integer installedRank;

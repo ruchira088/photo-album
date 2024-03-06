@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Entity(name = "api_user")
-public class User implements UserDetails {
+public final class User implements UserDetails {
 	@Id
 	@Column(name = "id", unique = true, updatable = false, nullable = false)
 	private String id;
