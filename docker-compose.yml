@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   photo-album:
     image: ghcr.io/ruchira088/photo-album:main
