@@ -3,7 +3,6 @@ package com.ruchij.photo.album.services.usage;
 import com.ruchij.photo.album.daos.usage.Usage;
 import com.ruchij.photo.album.daos.usage.UsageRepository;
 import com.ruchij.photo.album.services.models.UsageInformation;
-import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.time.Clock;
@@ -44,7 +43,6 @@ public class UsageServiceImpl implements UsageService {
 		return UsageInformation.from(usage);
 	}
 
-	@Transactional
 	@Override
 	public UsageInformation change(
 		String userId,

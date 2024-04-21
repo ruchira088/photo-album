@@ -12,6 +12,7 @@ import com.ruchij.photo.album.services.models.FileData;
 import com.ruchij.photo.album.services.models.ImageData;
 import com.ruchij.photo.album.services.storage.Storage;
 import com.ruchij.photo.album.services.usage.UsageService;
+import jakarta.transaction.Transactional;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
@@ -46,6 +47,7 @@ public class PhotoServiceImpl implements PhotoService {
 	}
 
 	@Override
+	@Transactional
 	@PreAuthorize("hasPermission(#albumId, 'ALBUM', 'WRITE')")
 	public Photo insert(String albumId, FileData fileData, Optional<String> title, Optional<String> description, Optional<Dimensions> dimensions) throws IOException {
 		Album album =
@@ -103,6 +105,7 @@ public class PhotoServiceImpl implements PhotoService {
 	}
 
 	@Override
+	@Transactional
 	@PreAuthorize("hasPermission(#photoId, 'PHOTO', 'WRITE')")
 	public Photo deletePhotoById(String photoId) throws IOException {
 		Photo photo = getByPhotoId(photoId);

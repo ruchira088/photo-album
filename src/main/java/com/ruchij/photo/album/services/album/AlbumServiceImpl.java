@@ -16,6 +16,7 @@ import com.ruchij.photo.album.services.models.ImageData;
 import com.ruchij.photo.album.services.photo.PhotoService;
 import com.ruchij.photo.album.services.storage.Storage;
 import com.ruchij.photo.album.services.usage.UsageService;
+import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Pageable;
@@ -59,6 +60,7 @@ public class AlbumServiceImpl implements AlbumService {
 		this.clock = clock;
 	}
 
+	@Transactional
 	@Override
 	public Album create(String name, Optional<String> description, boolean isPublic, Optional<String> password, User user) {
 		String albumId = idGenerator.generateId(Album.class);
@@ -117,6 +119,7 @@ public class AlbumServiceImpl implements AlbumService {
 	}
 
 	@Override
+	@Transactional
 	@PreAuthorize("hasPermission(#albumId, 'ALBUM', 'WRITE')")
 	public Album deleteById(String albumId) {
 		Album album = getByAlbumId(albumId);
@@ -162,6 +165,7 @@ public class AlbumServiceImpl implements AlbumService {
 	}
 
 	@Override
+	@Transactional
 	@PreAuthorize("hasPermission(#albumId, 'ALBUM', 'WRITE')")
 	public Album setAlbumCover(String albumId, FileData fileData, Optional<Dimensions> dimensions) throws IOException {
 		Album album = getByAlbumId(albumId);
