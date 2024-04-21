@@ -15,6 +15,7 @@ import com.ruchij.photo.album.services.models.FileData;
 import com.ruchij.photo.album.services.models.ImageData;
 import com.ruchij.photo.album.services.photo.PhotoService;
 import com.ruchij.photo.album.services.storage.Storage;
+import com.ruchij.photo.album.services.usage.UsageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Pageable;
@@ -34,6 +35,7 @@ public class AlbumServiceImpl implements AlbumService {
 
 	private final AlbumRepository albumRepository;
 	private final PhotoRepository photoRepository;
+	private final UsageService usageService;
 	private final Storage storage;
 	private final PasswordEncoder passwordEncoder;
 	private final IdGenerator idGenerator;
@@ -42,6 +44,7 @@ public class AlbumServiceImpl implements AlbumService {
 	public AlbumServiceImpl(
 		AlbumRepository albumRepository,
 		PhotoRepository photoRepository,
+		UsageService usageService,
 		Storage storage,
 		PasswordEncoder passwordEncoder,
 		IdGenerator idGenerator,
@@ -49,6 +52,7 @@ public class AlbumServiceImpl implements AlbumService {
 	) {
 		this.albumRepository = albumRepository;
 		this.photoRepository = photoRepository;
+		this.usageService = usageService;
 		this.storage = storage;
 		this.passwordEncoder = passwordEncoder;
 		this.idGenerator = idGenerator;
@@ -77,7 +81,15 @@ public class AlbumServiceImpl implements AlbumService {
 				album.setAlbumPassword(Optional.of(albumPassword));
 			});
 
-		return albumRepository.save(album);
+		Album saved = albumRepository.save(album);
+		usageService.change(
+			user.getId(),
+			Optional.of(1),
+			Optional.empty(),
+			Optional.empty()
+		);
+
+		return saved;
 	}
 
 	@Override
@@ -125,6 +137,12 @@ public class AlbumServiceImpl implements AlbumService {
 		});
 
 		albumRepository.deleteById(albumId);
+		usageService.change(
+			album.getUser().getId(),
+			Optional.of(-1),
+			Optional.empty(),
+			Optional.empty()
+		);
 
 		return album;
 	}
@@ -150,6 +168,8 @@ public class AlbumServiceImpl implements AlbumService {
 		ImageData imageData = PhotoService.getImageDimensions(fileData, dimensions);
 
 		ResourceFile resourceFile = storage.insert(imageData.fileData());
+
+		usageService.change(album.getUser().getId(), Optional.empty(), Optional.of(1), Optional.of(fileData.size()));
 
 		AlbumCover albumCover = new AlbumCover();
 		albumCover.setAlbum(album);

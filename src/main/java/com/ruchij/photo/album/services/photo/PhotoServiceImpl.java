@@ -11,6 +11,7 @@ import com.ruchij.photo.album.services.models.Dimensions;
 import com.ruchij.photo.album.services.models.FileData;
 import com.ruchij.photo.album.services.models.ImageData;
 import com.ruchij.photo.album.services.storage.Storage;
+import com.ruchij.photo.album.services.usage.UsageService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +25,7 @@ public class PhotoServiceImpl implements PhotoService {
 	private final Storage storage;
 	private final AlbumRepository albumRepository;
 	private final PhotoRepository photoRepository;
+	private final UsageService usageService;
 	private final IdGenerator idGenerator;
 	private final Clock clock;
 
@@ -31,12 +33,14 @@ public class PhotoServiceImpl implements PhotoService {
 		Storage storage,
 		AlbumRepository albumRepository,
 		PhotoRepository photoRepository,
+		UsageService usageService,
 		IdGenerator idGenerator,
 		Clock clock
 	) {
 		this.storage = storage;
 		this.albumRepository = albumRepository;
 		this.photoRepository = photoRepository;
+		this.usageService = usageService;
 		this.idGenerator = idGenerator;
 		this.clock = clock;
 	}
@@ -65,6 +69,13 @@ public class PhotoServiceImpl implements PhotoService {
 		photo.setResourceFile(resourceFile);
 
 		Photo savedPhoto = photoRepository.save(photo);
+
+		usageService.change(
+			album.getUser().getId(),
+			Optional.empty(),
+			Optional.of(1),
+			Optional.of(fileData.size())
+		);
 
 		return savedPhoto;
 	}
@@ -97,6 +108,14 @@ public class PhotoServiceImpl implements PhotoService {
 		Photo photo = getByPhotoId(photoId);
 		photoRepository.deleteById(photoId);
 		storage.deleteByResourceFileId(photo.getResourceFile().getId());
+
+		String userId = photo.getAlbum().getUser().getId();
+		usageService.change(
+			userId,
+			Optional.empty(),
+			Optional.of(-1),
+			Optional.of(-photo.getResourceFile().getFileSize())
+		);
 
 		return photo;
 	}

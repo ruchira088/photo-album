@@ -5,6 +5,7 @@ import com.ruchij.photo.album.daos.user.Credentials;
 import com.ruchij.photo.album.daos.user.User;
 import com.ruchij.photo.album.daos.user.UserRepository;
 import com.ruchij.photo.album.services.exceptions.ResourceConflictException;
+import com.ruchij.photo.album.services.usage.UsageService;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -17,17 +18,20 @@ import java.util.Optional;
 @Service
 public class UserServiceImpl implements UserService {
 	private final UserRepository userRepository;
+	private final UsageService usageService;
 	private final PasswordEncoder passwordEncoder;
 	private final IdGenerator idGenerator;
 	private final Clock clock;
 
 	public UserServiceImpl(
 		UserRepository userRepository,
+		UsageService usageService,
 		PasswordEncoder passwordEncoder,
 		IdGenerator idGenerator,
 		Clock clock
 	) {
 		this.userRepository = userRepository;
+		this.usageService = usageService;
 		this.passwordEncoder = passwordEncoder;
 		this.idGenerator = idGenerator;
 		this.clock = clock;
@@ -60,6 +64,8 @@ public class UserServiceImpl implements UserService {
 		user.setCredentials(credentials);
 
 		User savedUser = userRepository.save(user);
+
+		usageService.create(userId);
 
 		return savedUser;
 	}

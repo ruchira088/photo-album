@@ -1,5 +1,7 @@
 package com.ruchij.photo.album.web.controllers;
 
+import com.ruchij.photo.album.daos.usage.Usage;
+import com.ruchij.photo.album.daos.usage.UsageRepository;
 import com.ruchij.photo.album.daos.user.User;
 import com.ruchij.photo.album.daos.user.UserRepository;
 import org.junit.jupiter.api.Test;
@@ -27,6 +29,9 @@ public class UserControllerTest {
 
 	@Autowired
 	private UserRepository userRepository;
+
+	@Autowired
+	private UsageRepository usageRepository;
 
 	@Autowired
 	private PasswordEncoder passwordEncoder;
@@ -63,6 +68,12 @@ public class UserControllerTest {
 		assertEquals("me@ruchij.com", user.getEmail());
 		assertEquals("Ruchira", user.getFirstName());
 		assertEquals(Optional.of("Jayasekara"), user.getLastName());
+
+		Usage usage = usageRepository.findById(user.getId()).orElseThrow();
+
+		assertEquals(0, usage.getAlbumCount());
+		assertEquals(0, usage.getPhotoCount());
+		assertEquals(0, usage.getBytesUsed());
 
 		assertTrue(passwordEncoder.matches("Passw0rd", user.getCredentials().getPassword()));
 	}
